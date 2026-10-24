@@ -79,6 +79,8 @@
             </div>
         </div>
 
+        <div class="row g-4 align-items-start">
+        <div class="col-xl-8">
         <section class="card employee-form-card" aria-labelledby="calendar-month-title">
             <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap mb-3">
                 <h2 class="fs-5 mb-0" id="calendar-month-title" aria-live="polite">{{ $month->format('F Y') }}</h2>
@@ -157,6 +159,10 @@
                 @endforeach
             </div>
         </section>
+        </div>
+
+        <x-calendar-day-panel />
+        </div>
     </div>
 
     {{-- An interview or event: its details, and what HR can do with it. --}}

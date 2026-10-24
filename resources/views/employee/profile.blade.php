@@ -21,7 +21,7 @@
         </ul>
 
         <div class="tab-content">
-            <div class="tab-pane fade show active d-grid gap-4" id="profile-personal" role="tabpanel" aria-labelledby="profile-personal-tab" tabindex="0">
+            <div class="tab-pane fade show active profile-pane" id="profile-personal" role="tabpanel" aria-labelledby="profile-personal-tab" tabindex="0">
         <section class="card employee-form-card" aria-labelledby="work-title">
             <h2 class="employee-form-section" id="work-title">Employment</h2>
             <dl class="row mb-0">
@@ -37,7 +37,7 @@
         </section>
             </div>
 
-            <div class="tab-pane fade d-grid gap-4" id="profile-ids" role="tabpanel" aria-labelledby="profile-ids-tab" tabindex="0">
+            <div class="tab-pane fade profile-pane" id="profile-ids" role="tabpanel" aria-labelledby="profile-ids-tab" tabindex="0">
         <section class="card employee-form-card" aria-labelledby="gov-title">
             <h2 class="employee-form-section" id="gov-title">Government and tax IDs</h2>
             <p class="small text-body-secondary">For your privacy only the last four digits show.</p>
@@ -51,7 +51,7 @@
         </section>
             </div>
 
-            <div class="tab-pane fade d-grid gap-4" id="profile-contact" role="tabpanel" aria-labelledby="profile-contact-tab" tabindex="0">
+            <div class="tab-pane fade profile-pane" id="profile-contact" role="tabpanel" aria-labelledby="profile-contact-tab" tabindex="0">
         <form method="post" action="{{ route('employee.profile.update') }}" class="card employee-form-card" novalidate>
             @csrf
             @method('PUT')
@@ -65,7 +65,7 @@
         </form>
             </div>
 
-            <div class="tab-pane fade d-grid gap-4" id="profile-emergency" role="tabpanel" aria-labelledby="profile-emergency-tab" tabindex="0">
+            <div class="tab-pane fade profile-pane" id="profile-emergency" role="tabpanel" aria-labelledby="profile-emergency-tab" tabindex="0">
         <section class="card employee-form-card" aria-labelledby="ec-title">
             <h2 class="employee-form-section" id="ec-title">Emergency contacts</h2>
             <ul class="list-group list-group-flush mb-3">
@@ -87,7 +87,7 @@
         </section>
             </div>
 
-            <div class="tab-pane fade d-grid gap-4" id="profile-security" role="tabpanel" aria-labelledby="profile-security-tab" tabindex="0">
+            <div class="tab-pane fade profile-pane" id="profile-security" role="tabpanel" aria-labelledby="profile-security-tab" tabindex="0">
         <section class="card employee-form-card" aria-labelledby="sec-title">
             <h2 class="employee-form-section" id="sec-title">Security</h2>
             <a href="{{ route('password.change') }}">Change my password</a>

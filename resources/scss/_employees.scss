@@ -257,3 +257,9 @@ th[aria-sort="descending"] .sort-icon-descending {
 .employment-on-leave {
     --bs-progress-bar-bg: #c8871f;
 }
+
+// A tab's content sits straight under the tab strip; sections inside one tab are spaced apart.
+
+.profile-pane > * + * {
+    margin-top: 1.5rem;
+}

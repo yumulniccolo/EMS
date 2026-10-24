@@ -62,7 +62,7 @@
         </ul>
 
         <div class="tab-content">
-                <div class="tab-pane fade show active d-grid gap-4" id="profile-personal" role="tabpanel" aria-labelledby="profile-personal-tab" tabindex="0">
+                <div class="tab-pane fade show active profile-pane" id="profile-personal" role="tabpanel" aria-labelledby="profile-personal-tab" tabindex="0">
                 <section class="card employee-form-card" aria-labelledby="personal-title">
                     <h2 class="fs-5" id="personal-title">Personal Information</h2>
                     <dl class="row mb-0">
@@ -74,7 +74,7 @@
                 </section>
                 </div>
 
-                <div class="tab-pane fade d-grid gap-4" id="profile-employment" role="tabpanel" aria-labelledby="profile-employment-tab" tabindex="0">
+                <div class="tab-pane fade profile-pane" id="profile-employment" role="tabpanel" aria-labelledby="profile-employment-tab" tabindex="0">
                 <section class="card employee-form-card" aria-labelledby="employment-title">
                     <h2 class="fs-5" id="employment-title">Employment Information</h2>
                     <dl class="row mb-0">
@@ -98,7 +98,7 @@
                 </section>
                 </div>
 
-                <div class="tab-pane fade d-grid gap-4" id="profile-contact" role="tabpanel" aria-labelledby="profile-contact-tab" tabindex="0">
+                <div class="tab-pane fade profile-pane" id="profile-contact" role="tabpanel" aria-labelledby="profile-contact-tab" tabindex="0">
                 <section class="card employee-form-card" aria-labelledby="contact-title">
                     <h2 class="fs-5" id="contact-title">Contact Information</h2>
                     <dl class="row mb-0">
@@ -109,7 +109,7 @@
                 </section>
                 </div>
 
-                <div class="tab-pane fade d-grid gap-4" id="profile-ids" role="tabpanel" aria-labelledby="profile-ids-tab" tabindex="0">
+                <div class="tab-pane fade profile-pane" id="profile-ids" role="tabpanel" aria-labelledby="profile-ids-tab" tabindex="0">
                 <section class="card employee-form-card" aria-labelledby="ids-title">
                     <h2 class="fs-5" id="ids-title">Government IDs</h2>
                     <p class="text-body-secondary">Numbers are masked. @if ($isHead) Reveal one only when you have a reason; it is recorded. @endif</p>
@@ -136,7 +136,7 @@
                 </section>
                 </div>
 
-                <div class="tab-pane fade d-grid gap-4" id="profile-documents" role="tabpanel" aria-labelledby="profile-documents-tab" tabindex="0">
+                <div class="tab-pane fade profile-pane" id="profile-documents" role="tabpanel" aria-labelledby="profile-documents-tab" tabindex="0">
                 <section class="card employee-form-card" aria-labelledby="documents-title">
                     <h2 class="fs-5" id="documents-title">Documents</h2>
                     <ul class="list-group list-group-flush mb-3">
@@ -163,7 +163,7 @@
                     @endunless
                 </section>
                 </div>
-                <div class="tab-pane fade d-grid gap-4" id="profile-emergency" role="tabpanel" aria-labelledby="profile-emergency-tab" tabindex="0">
+                <div class="tab-pane fade profile-pane" id="profile-emergency" role="tabpanel" aria-labelledby="profile-emergency-tab" tabindex="0">
                 <section class="card employee-form-card" aria-labelledby="emergency-title">
                     <h2 class="fs-5" id="emergency-title">Emergency Contacts</h2>
                     <ul class="list-group list-group-flush mb-3">
@@ -200,7 +200,7 @@
                 </section>
                 </div>
 
-                <div class="tab-pane fade d-grid gap-4" id="profile-leave" role="tabpanel" aria-labelledby="profile-leave-tab" tabindex="0">
+                <div class="tab-pane fade profile-pane" id="profile-leave" role="tabpanel" aria-labelledby="profile-leave-tab" tabindex="0">
                 <section class="card employee-form-card" aria-labelledby="leave-title">
                     <h2 class="fs-5" id="leave-title">Leave for {{ now()->year }}</h2>
                     @if ($leaveBalances === [])
@@ -250,7 +250,7 @@
                 </section>
                 </div>
 
-                <div class="tab-pane fade d-grid gap-4" id="profile-contract" role="tabpanel" aria-labelledby="profile-contract-tab" tabindex="0">
+                <div class="tab-pane fade profile-pane" id="profile-contract" role="tabpanel" aria-labelledby="profile-contract-tab" tabindex="0">
                 <section class="card employee-form-card" aria-labelledby="contract-title">
                     <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
                         <h2 class="fs-5" id="contract-title">Contract and Agreements</h2>
@@ -344,7 +344,7 @@
                 </section>
                 </div>
 
-                <div class="tab-pane fade d-grid gap-4" id="profile-activity" role="tabpanel" aria-labelledby="profile-activity-tab" tabindex="0">
+                <div class="tab-pane fade profile-pane" id="profile-activity" role="tabpanel" aria-labelledby="profile-activity-tab" tabindex="0">
                 @if ($isHead)
                     <section class="card employee-form-card" aria-labelledby="archive-title">
                         <h2 class="fs-5" id="archive-title">{{ $isArchived ? 'Restore' : 'Archive' }}</h2>

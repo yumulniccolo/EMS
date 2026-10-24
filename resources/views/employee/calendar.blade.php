@@ -49,6 +49,8 @@
             </div>
         </div>
 
+        <div class="row g-4 align-items-start">
+        <div class="col-xl-8">
         <section class="card employee-form-card" aria-labelledby="calendar-month-title">
             <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap mb-3">
                 <h2 class="fs-5 mb-0" id="calendar-month-title" aria-live="polite">{{ $month->format('F Y') }}</h2>
@@ -67,18 +69,23 @@
             <div class="calendar-grid" role="grid" aria-label="{{ $month->format('F Y') }}">
                 @foreach ($weeks as $week)
                     @foreach ($week as $day)
-                        <div class="calendar-day{{ $day['inMonth'] ? '' : ' is-outside' }}{{ $day['isToday'] ? ' is-today' : '' }}" role="gridcell">
+                        <div class="calendar-day{{ $day['inMonth'] ? '' : ' is-outside' }}{{ $day['isToday'] ? ' is-today' : '' }}" role="gridcell"
+                            data-calendar-day="{{ $day['date']->toDateString() }}">
                             <span class="calendar-day-number">{{ $day['date']->day }}</span>
                             <div class="calendar-day-events">
                                 @foreach ($day['events'] as $event)
-                                    <span class="calendar-event type-other is-confirmed" title="{{ $event->title }} · {{ $event->typeLabel() }}{{ $event->venue ? ' · '.$event->venue : '' }}">
+                                    <span class="calendar-event type-other is-confirmed" title="{{ $event->title }} · {{ $event->typeLabel() }}{{ $event->venue ? ' · '.$event->venue : '' }}"
+                                        data-title="{{ $event->title }} ({{ $event->typeLabel() }})" data-status-label="Scheduled" data-place="{{ $event->venue }}"
+                                        data-when="{{ $event->starts_at->format('l, M j, Y g:i A') }}{{ $event->ends_at ? ' to '.$event->ends_at->format('g:i A') : '' }}">
                                         <span class="calendar-event-label">{{ $event->starts_at->format('g:i A') }} {{ $event->title }}</span>
                                     </span>
                                 @endforeach
 
                                 @foreach ($day['leave'] as $leave)
                                     <span class="calendar-event type-leave {{ $leave->status === \App\Enums\LeaveStatus::Approved ? 'is-confirmed' : 'is-tentative' }}"
-                                        data-calendar-status="{{ $leave->status->value }}" title="{{ $leave->leave_type->label() }} ({{ $leave->status->label() }})">
+                                        data-calendar-status="{{ $leave->status->value }}" title="{{ $leave->leave_type->label() }} ({{ $leave->status->label() }})"
+                                        data-title="{{ $leave->leave_type->label() }}" data-status-label="{{ $leave->status->label() }}"
+                                        data-when="{{ $leave->start_date->format('M j, Y') }}{{ $leave->end_date->isSameDay($leave->start_date) ? '' : ' to '.$leave->end_date->format('M j, Y') }}">
                                         <span class="calendar-event-label">{{ $leave->leave_type->label() }}</span>
                                     </span>
                                 @endforeach
@@ -88,5 +95,9 @@
                 @endforeach
             </div>
         </section>
+        </div>
+
+        <x-calendar-day-panel details />
+        </div>
     </div>
 @endsection
