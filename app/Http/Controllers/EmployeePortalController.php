@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\AuditAction;
 use App\Enums\EmployeeStatus;
+use App\Enums\LeaveStatus;
 use App\Models\Benefit;
 use App\Models\CalendarEvent;
 use App\Models\EmergencyContact;
@@ -12,6 +13,7 @@ use App\Models\LeaveRequest;
 use App\Services\AuditLogger;
 use App\Services\DocumentStore;
 use App\Services\LeaveBalances;
+use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -160,10 +162,35 @@ class EmployeePortalController extends Controller
     public function calendar(Request $request): View
     {
         $employee = $this->employee($request);
+        $data = $request->validate(['month' => ['nullable', 'date_format:Y-m']]);
+
+        $month = CarbonImmutable::parse(($data['month'] ?? now()->format('Y-m')).'-01')->startOfMonth();
+        $gridStart = $month->startOfWeek(CarbonImmutable::SUNDAY);
+        $gridEnd = $month->endOfMonth()->endOfWeek(CarbonImmutable::SATURDAY);
+
+        $events = CalendarEvent::query()->where('for_everyone', true)->where('status', 'scheduled')->whereBetween('starts_at', [$gridStart, $gridEnd])->orderBy('starts_at')->get();
+        $leave = LeaveRequest::query()
+            ->where('employee_id', $employee->id)
+            ->whereIn('status', [LeaveStatus::Pending, LeaveStatus::Approved])
+            ->whereDate('start_date', '<=', $gridEnd)->whereDate('end_date', '>=', $gridStart)
+            ->orderBy('start_date')->get();
+
+        $days = [];
+
+        for ($day = $gridStart; $day->lte($gridEnd); $day = $day->addDay()) {
+            $key = $day->toDateString();
+            $days[] = [
+                'date' => $day,
+                'inMonth' => $day->month === $month->month,
+                'isToday' => $day->isToday(),
+                'events' => $events->filter(fn (CalendarEvent $event): bool => $event->starts_at->toDateString() === $key)->values(),
+                'leave' => $leave->filter(fn (LeaveRequest $request): bool => $request->start_date->toDateString() <= $key && $request->end_date->toDateString() >= $key)->values(),
+            ];
+        }
 
         return view('employee.calendar', [
-            'events' => CalendarEvent::query()->where('for_everyone', true)->where('status', 'scheduled')->where('starts_at', '>=', now()->startOfMonth())->orderBy('starts_at')->get(),
-            'leave' => LeaveRequest::query()->where('employee_id', $employee->id)->where('status', 'approved')->whereDate('end_date', '>=', now()->startOfMonth())->orderBy('start_date')->get(),
+            'month' => $month,
+            'weeks' => array_chunk($days, 7),
         ]);
     }
 

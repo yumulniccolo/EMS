@@ -9,6 +9,19 @@
             <p class="text-body-secondary mt-1 mb-0">Your record as HR holds it. You can update your contact details and emergency contacts.</p>
         </div>
 
+        @php($tabs = ['personal' => 'Personal Information', 'ids' => 'Government IDs', 'contact' => 'Contact Details', 'emergency' => 'Emergency Contacts', 'security' => 'Security'])
+        <ul class="nav nav-underline profile-tabs flex-nowrap overflow-x-auto" role="tablist" data-remember-tab="my-profile">
+            @foreach ($tabs as $key => $label)
+                <li class="nav-item" role="presentation">
+                    <button type="button" class="nav-link text-nowrap{{ $loop->first ? ' active' : '' }}" id="profile-{{ $key }}-tab"
+                        data-bs-toggle="tab" data-bs-target="#profile-{{ $key }}" role="tab"
+                        aria-controls="profile-{{ $key }}" aria-selected="{{ $loop->first ? 'true' : 'false' }}">{{ $label }}</button>
+                </li>
+            @endforeach
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active d-grid gap-4" id="profile-personal" role="tabpanel" aria-labelledby="profile-personal-tab" tabindex="0">
         <section class="card employee-form-card" aria-labelledby="work-title">
             <h2 class="employee-form-section" id="work-title">Employment</h2>
             <dl class="row mb-0">
@@ -22,7 +35,9 @@
                 <dt class="col-sm-3">Official email</dt><dd class="col-sm-9">{{ $employee->official_email }}</dd>
             </dl>
         </section>
+            </div>
 
+            <div class="tab-pane fade d-grid gap-4" id="profile-ids" role="tabpanel" aria-labelledby="profile-ids-tab" tabindex="0">
         <section class="card employee-form-card" aria-labelledby="gov-title">
             <h2 class="employee-form-section" id="gov-title">Government and tax IDs</h2>
             <p class="small text-body-secondary">For your privacy only the last four digits show.</p>
@@ -34,7 +49,9 @@
                 @endforelse
             </dl>
         </section>
+            </div>
 
+            <div class="tab-pane fade d-grid gap-4" id="profile-contact" role="tabpanel" aria-labelledby="profile-contact-tab" tabindex="0">
         <form method="post" action="{{ route('employee.profile.update') }}" class="card employee-form-card" novalidate>
             @csrf
             @method('PUT')
@@ -46,7 +63,9 @@
                 <div class="col-12 d-flex justify-content-end"><button type="submit" class="btn btn-primary">Save</button></div>
             </div>
         </form>
+            </div>
 
+            <div class="tab-pane fade d-grid gap-4" id="profile-emergency" role="tabpanel" aria-labelledby="profile-emergency-tab" tabindex="0">
         <section class="card employee-form-card" aria-labelledby="ec-title">
             <h2 class="employee-form-section" id="ec-title">Emergency contacts</h2>
             <ul class="list-group list-group-flush mb-3">
@@ -66,10 +85,14 @@
                 <div class="col-12 d-flex justify-content-end"><button type="submit" class="btn btn-outline-primary">Add Contact</button></div>
             </form>
         </section>
+            </div>
 
+            <div class="tab-pane fade d-grid gap-4" id="profile-security" role="tabpanel" aria-labelledby="profile-security-tab" tabindex="0">
         <section class="card employee-form-card" aria-labelledby="sec-title">
             <h2 class="employee-form-section" id="sec-title">Security</h2>
             <a href="{{ route('password.change') }}">Change my password</a>
         </section>
+            </div>
+        </div>
     </div>
 @endsection

@@ -8,6 +8,7 @@
     $idLabels = ['tin' => 'TIN', 'gsis' => 'GSIS', 'sss' => 'SSS', 'philhealth' => 'PhilHealth', 'pagibig' => 'Pag-IBIG', 'bir' => 'BIR'];
     $masked = $employee->maskedGovernmentIds();
     $pending = $employee->transfers->firstWhere('applied_at', null);
+    $tabs = ['personal' => 'Personal Information', 'employment' => 'Employment', 'contact' => 'Contact', 'ids' => 'Government IDs', 'documents' => 'Documents', 'emergency' => 'Emergency Contacts', 'leave' => 'Leave', 'contract' => 'Contract', 'activity' => $isHead ? 'Activity and Archive' : 'Activity'];
 @endphp
 
 {{--
@@ -50,8 +51,18 @@
             </div>
         </section>
 
-        <div class="row g-4">
-            <div class="col-xl-6 d-grid gap-4 align-content-start">
+        <ul class="nav nav-underline profile-tabs flex-nowrap overflow-x-auto" role="tablist" data-remember-tab="employee-{{ $employee->id }}">
+            @foreach ($tabs as $key => $label)
+                <li class="nav-item" role="presentation">
+                    <button type="button" class="nav-link text-nowrap{{ $loop->first ? ' active' : '' }}" id="profile-{{ $key }}-tab"
+                        data-bs-toggle="tab" data-bs-target="#profile-{{ $key }}" role="tab"
+                        aria-controls="profile-{{ $key }}" aria-selected="{{ $loop->first ? 'true' : 'false' }}">{{ $label }}</button>
+                </li>
+            @endforeach
+        </ul>
+
+        <div class="tab-content">
+                <div class="tab-pane fade show active d-grid gap-4" id="profile-personal" role="tabpanel" aria-labelledby="profile-personal-tab" tabindex="0">
                 <section class="card employee-form-card" aria-labelledby="personal-title">
                     <h2 class="fs-5" id="personal-title">Personal Information</h2>
                     <dl class="row mb-0">
@@ -61,7 +72,9 @@
                         <dt class="col-sm-5">Marital status</dt><dd class="col-sm-7">{{ $employee->marital_status?->value ?? '—' }}</dd>
                     </dl>
                 </section>
+                </div>
 
+                <div class="tab-pane fade d-grid gap-4" id="profile-employment" role="tabpanel" aria-labelledby="profile-employment-tab" tabindex="0">
                 <section class="card employee-form-card" aria-labelledby="employment-title">
                     <h2 class="fs-5" id="employment-title">Employment Information</h2>
                     <dl class="row mb-0">
@@ -83,7 +96,9 @@
                         <dd class="col-sm-7">{{ $employee->user ? ($employee->user->is_active ? 'Active' : 'Deactivated') : 'None' }}</dd>
                     </dl>
                 </section>
+                </div>
 
+                <div class="tab-pane fade d-grid gap-4" id="profile-contact" role="tabpanel" aria-labelledby="profile-contact-tab" tabindex="0">
                 <section class="card employee-form-card" aria-labelledby="contact-title">
                     <h2 class="fs-5" id="contact-title">Contact Information</h2>
                     <dl class="row mb-0">
@@ -92,7 +107,9 @@
                         <dt class="col-sm-5">Home address</dt><dd class="col-sm-7">{{ $employee->address ?? '—' }}</dd>
                     </dl>
                 </section>
+                </div>
 
+                <div class="tab-pane fade d-grid gap-4" id="profile-ids" role="tabpanel" aria-labelledby="profile-ids-tab" tabindex="0">
                 <section class="card employee-form-card" aria-labelledby="ids-title">
                     <h2 class="fs-5" id="ids-title">Government IDs</h2>
                     <p class="text-body-secondary">Numbers are masked. @if ($isHead) Reveal one only when you have a reason; it is recorded. @endif</p>
@@ -117,7 +134,9 @@
                         @endforeach
                     </ul>
                 </section>
+                </div>
 
+                <div class="tab-pane fade d-grid gap-4" id="profile-documents" role="tabpanel" aria-labelledby="profile-documents-tab" tabindex="0">
                 <section class="card employee-form-card" aria-labelledby="documents-title">
                     <h2 class="fs-5" id="documents-title">Documents</h2>
                     <ul class="list-group list-group-flush mb-3">
@@ -143,9 +162,8 @@
                         </form>
                     @endunless
                 </section>
-            </div>
-
-            <div class="col-xl-6 d-grid gap-4 align-content-start">
+                </div>
+                <div class="tab-pane fade d-grid gap-4" id="profile-emergency" role="tabpanel" aria-labelledby="profile-emergency-tab" tabindex="0">
                 <section class="card employee-form-card" aria-labelledby="emergency-title">
                     <h2 class="fs-5" id="emergency-title">Emergency Contacts</h2>
                     <ul class="list-group list-group-flush mb-3">
@@ -180,7 +198,9 @@
                         </div>
                     </form>
                 </section>
+                </div>
 
+                <div class="tab-pane fade d-grid gap-4" id="profile-leave" role="tabpanel" aria-labelledby="profile-leave-tab" tabindex="0">
                 <section class="card employee-form-card" aria-labelledby="leave-title">
                     <h2 class="fs-5" id="leave-title">Leave for {{ now()->year }}</h2>
                     @if ($leaveBalances === [])
@@ -228,7 +248,9 @@
                         @endforelse
                     </ul>
                 </section>
+                </div>
 
+                <div class="tab-pane fade d-grid gap-4" id="profile-contract" role="tabpanel" aria-labelledby="profile-contract-tab" tabindex="0">
                 <section class="card employee-form-card" aria-labelledby="contract-title">
                     <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
                         <h2 class="fs-5" id="contract-title">Contract and Agreements</h2>
@@ -320,7 +342,9 @@
                         @endforelse
                     </ul>
                 </section>
+                </div>
 
+                <div class="tab-pane fade d-grid gap-4" id="profile-activity" role="tabpanel" aria-labelledby="profile-activity-tab" tabindex="0">
                 @if ($isHead)
                     <section class="card employee-form-card" aria-labelledby="archive-title">
                         <h2 class="fs-5" id="archive-title">{{ $isArchived ? 'Restore' : 'Archive' }}</h2>
@@ -359,7 +383,7 @@
                         @endforelse
                     </ul>
                 </section>
-            </div>
+                </div>
         </div>
     </div>
 @endsection

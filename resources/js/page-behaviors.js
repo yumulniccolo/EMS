@@ -136,3 +136,75 @@ $(document).on('hidden.bs.modal', '#application-modal', function () {
         window.location.reload();
     }
 });
+
+// A table row that opens a modal (data-bs-toggle="modal" on the row) also opens with Enter or Space.
+$(document).on('keydown', 'tr[data-bs-toggle="modal"]', function (event) {
+    if ((event.key === 'Enter' || event.key === ' ') && event.target === this) {
+        event.preventDefault();
+        window.bootstrap.Modal.getOrCreateInstance(document.querySelector(this.getAttribute('data-bs-target'))).show();
+    }
+});
+
+// A modal marked data-open-on-load opens as the page loads (a form inside it came back with errors).
+$(() => {
+    document.querySelectorAll('.modal[data-open-on-load]').forEach((element) => {
+        window.bootstrap.Modal.getOrCreateInstance(element).show();
+    });
+});
+
+// Calendar filters: the Event Type and Status pills hide the chips (data-calendar-type, data-calendar-status) that are not selected.
+function applyCalendarFilters() {
+    const selected = (selector) => $(selector).filter(':checked').map((_, input) => input.value).get();
+    const types = $('[data-calendar-type-filter]').length ? selected('[data-calendar-type-filter]') : null;
+    const statuses = $('[data-calendar-status-filter]').length ? selected('[data-calendar-status-filter]') : null;
+
+    $('.calendar-event').each(function () {
+        const type = this.getAttribute('data-calendar-type');
+        const status = this.getAttribute('data-calendar-status');
+        const hidden = (types !== null && type !== null && !types.includes(type))
+            || (statuses !== null && status !== null && !statuses.includes(status));
+
+        $(this).toggleClass('d-none', hidden);
+    });
+}
+
+$(document).on('change', '[data-calendar-type-filter], [data-calendar-status-filter]', applyCalendarFilters);
+$(document).on('click', '[data-calendar-clear]', () => {
+    $('[data-calendar-type-filter], [data-calendar-status-filter]').prop('checked', true);
+    applyCalendarFilters();
+});
+
+// Tabs marked data-remember-tab reopen on the tab they were left on (a form on a tab sends the page back to this one).
+$(() => {
+    document.querySelectorAll('[data-remember-tab]').forEach((nav) => {
+        const key = `tab:${nav.getAttribute('data-remember-tab')}`;
+
+        try {
+            const saved = sessionStorage.getItem(key);
+            const button = saved ? nav.querySelector(`[data-bs-target="${saved}"]`) : null;
+
+            if (button) {
+                window.bootstrap.Tab.getOrCreateInstance(button).show();
+            }
+        } catch {
+            // Storage can be blocked; the first tab opens.
+        }
+
+        nav.addEventListener('shown.bs.tab', (event) => {
+            try {
+                sessionStorage.setItem(key, event.target.getAttribute('data-bs-target'));
+            } catch {
+                // Nothing to remember it with.
+            }
+        });
+    });
+});
+
+// A link to a page's #security opens its Security tab when it has one (the header's Account menu links there).
+$(() => {
+    const button = window.location.hash === '#security' ? document.querySelector('[data-bs-target="#profile-security"]') : null;
+
+    if (button) {
+        window.bootstrap.Tab.getOrCreateInstance(button).show();
+    }
+});
