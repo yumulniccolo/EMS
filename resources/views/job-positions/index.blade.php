@@ -85,6 +85,7 @@
                             <th scope="col">Employment Type</th>
                             <th scope="col">Base Pay</th>
                             <th scope="col" class="text-end">Openings</th>
+                            <th scope="col" class="text-end">Applied</th>
                             <th scope="col">Status</th>
                             <th scope="col"><span class="visually-hidden">Actions</span></th>
                         </tr>
@@ -93,9 +94,7 @@
                         @forelse ($postings as $posting)
                             <tr>
                                 <td>
-                                    <span class="fw-medium">{{ $posting->title }}</span>
-                                    <small class="d-block text-body-secondary">{{ $posting->open_applications_count }} open {{ \Illuminate\Support\Str::plural('application', $posting->open_applications_count) }}</small>
-                                </td>
+                                    <span class="fw-medium">{{ $posting->title }}</span>                                </td>
                                 <td>{{ $posting->college?->name ?? $posting->office?->name }}</td>
                                 <td>
                                     {{ \App\Enums\EmploymentType::tryFrom((string) $posting->employment_type)?->label() ?? '—' }}
@@ -105,6 +104,7 @@
                                 </td>
                                 <td class="tabular-nums">{{ isset($pay[$posting->salary_grade]) ? '₱'.number_format((float) $pay[$posting->salary_grade], 2) : '—' }} <small class="text-body-secondary">SG {{ $posting->salary_grade }}</small></td>
                                 <td class="text-end tabular-nums">{{ $posting->openings }}</td>
+                                <td class="text-end tabular-nums">{{ $posting->open_applications_count }}</td>
                                 <td>
                                     @if ($posting->isOpen()) <span class="status-pill employment-active">Open</span> @else <span class="ems-chip">Closed</span> @endif
                                 </td>
@@ -121,7 +121,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="7" class="employees-empty text-center"><strong>No job postings found</strong> Open a posting from a job title to get started.</td></tr>
+                            <tr><td colspan="8"class="employees-empty text-center"><strong>No job postings found</strong> Open a posting from a job title to get started.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

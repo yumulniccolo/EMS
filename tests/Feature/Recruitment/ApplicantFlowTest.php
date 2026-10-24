@@ -48,7 +48,7 @@ describe('the public careers website', function () {
         $this->get(route('careers.index'))
             ->assertOk()
             ->assertSee('Instructor I')
-            ->assertSee('Colleges hiring')
+            ->assertSee('Openings in all')
             ->assertDontSee('Hidden Draft')
             ->assertDontSee('Closed Post')
             ->assertDontSee('Departments')

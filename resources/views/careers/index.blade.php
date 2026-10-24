@@ -24,13 +24,9 @@
             </p>
             <div class="d-flex flex-wrap gap-2">
                 <a class="btn btn-light btn-lg" href="#open-positions">Explore Open Positions</a>
-                @guest
-                    <a class="btn btn-outline-light btn-lg" href="{{ route('applicant.register') }}">Create Account</a>
-                @endguest
             </div>
             <dl class="careers-hero-stats" aria-label="Hiring right now">
                 <div><dt>Open positions</dt><dd class="tabular-nums">{{ $stats['positions'] }}</dd></div>
-                <div><dt>Colleges hiring</dt><dd class="tabular-nums">{{ $stats['colleges'] }}</dd></div>
                 <div><dt>Openings in all</dt><dd class="tabular-nums">{{ $stats['openings'] }}</dd></div>
             </dl>
         </section>
