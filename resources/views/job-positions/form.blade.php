@@ -5,7 +5,7 @@
 @section('content')
     <div class="d-grid gap-4">
         <div>
-            <a class="btn btn-outline-secondary d-inline-flex align-items-center gap-2" href="{{ route('job-positions.index') }}"><x-icon name="back" /> Back to Open Job Positions</a>
+            <a class="btn btn-outline-secondary d-inline-flex align-items-center gap-2" href="{{ route('job-positions.index') }}"><x-icon name="back" /> Back to Open Positions</a>
         </div>
 
         <div>

@@ -6,7 +6,7 @@
         ['route' => 'offices.index', 'pattern' => 'offices.*', 'icon' => 'employees', 'label' => 'Offices'],
         ['route' => 'job-titles.index', 'pattern' => ['job-titles.*', 'rates.*'], 'icon' => 'job-titles', 'label' => 'Job Titles'],
         ['route' => 'recruitment.index', 'pattern' => 'recruitment.*', 'icon' => 'recruitment', 'label' => 'Recruitment'],
-        ['route' => 'job-positions.index', 'pattern' => 'job-positions.*', 'icon' => 'positions', 'label' => 'Open Job Positions'],
+        ['route' => 'job-positions.index', 'pattern' => 'job-positions.*', 'icon' => 'positions', 'label' => 'Open Positions'],
         ['route' => 'leave.index', 'pattern' => 'leave.*', 'icon' => 'leave', 'label' => 'Leave Requests'],
         ['route' => 'my-leave', 'pattern' => 'my-leave*', 'icon' => 'leave', 'label' => 'My Leave'],
         ['route' => 'contracts.index', 'pattern' => 'contracts.*', 'icon' => 'job-titles', 'label' => 'Contracts', 'headOnly' => true],

@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Open Job Positions · '.config('app.name'))
+@section('title', 'Open Positions · '.config('app.name'))
 
 {{--
     The job postings, from the database: the same job titles the Job Titles and Recruitment pages and the public Careers website
@@ -11,7 +11,7 @@
     <div class="d-grid gap-4">
         <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
             <div>
-                <h1 class="page-title">Open Job Positions</h1>
+                <h1 class="page-title">Open Positions</h1>
                 <p class="text-body-secondary mt-1 mb-0">Manage the job postings. Open postings are listed on the public Careers website.</p>
             </div>
 
