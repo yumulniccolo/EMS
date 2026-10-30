@@ -15,6 +15,20 @@ it('shows the accounts page to the HR Admin only', function () {
     $this->actingAs(employeeUser())->get(route('accounts.index'))->assertForbidden();
 });
 
+it('lists 15 accounts a page and keeps the search and filters on the other pages', function () {
+    $admin = hrAdmin();
+    User::factory()->count(16)->sequence(fn ($sequence) => ['name' => sprintf('Pager %02d', $sequence->index + 1)])->create();
+
+    $this->actingAs($admin)->get(route('accounts.index', ['q' => 'Pager']))
+        ->assertOk()
+        ->assertViewHas('accounts', fn ($accounts) => $accounts->count() === 15 && $accounts->total() === 16)
+        ->assertSee('Pager 15')
+        ->assertDontSee('Pager 16')
+        ->assertSee(route('accounts.index', ['q' => 'Pager', 'page' => 2]));
+
+    $this->get(route('accounts.index', ['q' => 'Pager', 'page' => 2]))->assertSee('Pager 16')->assertDontSee('Pager 15');
+});
+
 describe('creating an account', function () {
     it('issues a login whose first password is the employee number, with first-login setup pending', function () {
         $head = hrAdmin();
@@ -141,6 +155,18 @@ describe('resetting a password', function () {
             ->and($target->must_change_password)->toBeTrue()
             ->and($target->temp_password_expires_at)->not->toBeNull()
             ->and($target->remember_token)->not->toBe('old-token');
+    });
+
+    it('shows the new temporary password once, masked, in a window on the accounts page', function () {
+        $target = User::factory()->create();
+
+        $page = $this->actingAs(hrAdmin())->from(route('accounts.index'))->followingRedirects()->post(route('accounts.reset-password', $target))
+            ->assertSee('id="issued-password-modal"', escape: false)
+            ->assertSee('Copy Password');
+        preg_match('/<input type="password"[^>]*id="issued-password" value="([^"]+)"/', $page->getContent(), $match);
+
+        expect(Hash::check(html_entity_decode($match[1] ?? '', ENT_QUOTES), $target->refresh()->password))->toBeTrue();
+        $this->get(route('accounts.index'))->assertDontSee('issued-password-modal')->assertDontSee($match[1]);
     });
 
     it('lets one HR Admin reset another HR Admin, but nobody reset their own account here', function () {

@@ -164,7 +164,7 @@ describe('moving and changing the interview', function () {
 
         $this->get(route('recruitment.show', $this->application))
             ->assertSee('That time overlaps something, so nothing was changed.')
-            ->assertSee('<details class="mb-2" open', false);
+            ->assertSeeInOrder(['data-accordion-open', 'Reschedule</div>'], false);
     });
 
     it('cannot move a finished interview', function () {
@@ -512,7 +512,7 @@ describe('the Recruitment page', function () {
             ->assertSee('Documents')
             ->assertSee('cv.pdf')
             ->assertSee('<iframe', escape: false)
-            ->assertSee('<summary class="fs-5 fw-semibold">Applicant information</summary>', escape: false)
+            ->assertSee('<div class="fs-5 fw-semibold" data-accordion-header>Applicant information</div>', escape: false)
             ->assertSee('Schedule the demo interview');
     });
 

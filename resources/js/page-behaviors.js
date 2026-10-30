@@ -1,11 +1,17 @@
+import { initAdminWidgets, refreshAdminWidgets } from './admin-widgets.js';
 import $ from './jquery.js';
 
 // Small behaviors shared by the HR pages. Everything is attached with delegated handlers on the document, and applyDependentFields()
 // is run on a page or on a piece of page that was just placed on it (the Recruitment application window), so it also works there.
 
 // A table row marked data-row-href opens that address when clicked anywhere on it (links and buttons inside still work on their own).
-$(document).on('click', 'tr[data-row-href]', function (event) {
-    if ($(event.target).closest('a, button, input, select, label').length) {
+// A row also marked data-row-modal opens it in the Recruitment application window instead (see below).
+function isInteractiveClick(event) {
+    return $(event.target).closest('a, button, input, select, textarea, label, summary').length > 0;
+}
+
+$(document).on('click', 'tr[data-row-href]:not([data-row-modal])', function (event) {
+    if (isInteractiveClick(event)) {
         return;
     }
 
@@ -17,6 +23,7 @@ $(document).on('click', 'tr[data-row-href]', function (event) {
 function showOnly($fields, isShown) {
     $fields.toggleClass('d-none', !isShown);
     $fields.find('input, select, textarea').prop('disabled', !isShown);
+    refreshAdminWidgets($fields);
 }
 
 function applyDependentFields(root) {
@@ -45,7 +52,7 @@ $(function () {
     applyDependentFields(document);
 });
 
-// Open on the Recruitment list shows the application in a window over the list. The window is the application page itself, fetched and
+// A row (or an Open link) on the Recruitment list shows the application in a window over the list. The window is the application page itself, fetched and
 // placed inside it. Forms in the window are sent with fetch (with the application page as the referrer, so the server's redirect and
 // any validation message come back to the application), and the window shows the answer. The list is refreshed when the window closes.
 let changed = false;
@@ -58,10 +65,11 @@ function showInModal(html, url) {
     const main = page.querySelector('[data-application-content]')
         ?? (area ? Array.from(area.children).find((element) => !element.classList.contains('alert')) : null);
 
-    body.innerHTML = '';
+    // Emptied with jQuery, so the widgets of the previous content are taken down with it (their menus sit outside it).
+    $(body).empty();
 
     if (!main) {
-        body.innerHTML = `<p class="mb-0">The application could not be shown here. <a href="${url}">Open it as a page</a>.</p>`;
+        $(body).html(`<p class="mb-0">The application could not be shown here. <a href="${url}">Open it as a page</a>.</p>`);
 
         return;
     }
@@ -70,17 +78,15 @@ function showInModal(html, url) {
     main.querySelectorAll('a.btn-outline-secondary[href$="/recruitment"]').forEach((link) => link.closest('div')?.remove());
     body.append(document.importNode(main, true));
     body.dataset.url = url;
+    initAdminWidgets(body);
     applyDependentFields(body);
 }
 
-$(document).on('click', 'a[data-application-modal]', async function (event) {
-    event.preventDefault();
-
+async function openApplicationModal(url) {
     const modalElement = document.getElementById('application-modal');
-    const url = this.getAttribute('href');
 
     changed = false;
-    modalElement.querySelector('[data-application-modal-body]').innerHTML = '<p class="text-body-secondary mb-0">Loading...</p>';
+    $(modalElement).find('[data-application-modal-body]').html('<p class="text-body-secondary mb-0">Loading...</p>');
     window.bootstrap.Modal.getOrCreateInstance(modalElement).show();
 
     try {
@@ -94,8 +100,21 @@ $(document).on('click', 'a[data-application-modal]', async function (event) {
 
         showInModal(await response.text(), url);
     } catch {
-        modalElement.querySelector('[data-application-modal-body]').innerHTML = `<p class="mb-0">The application could not be loaded. <a href="${url}">Open it as a page</a>.</p>`;
+        $(modalElement).find('[data-application-modal-body]').html(`<p class="mb-0">The application could not be loaded. <a href="${url}">Open it as a page</a>.</p>`);
     }
+}
+
+$(document).on('click', 'a[data-application-modal]', function (event) {
+    event.preventDefault();
+    openApplicationModal(this.getAttribute('href'));
+});
+
+$(document).on('click', 'tr[data-row-modal]', function (event) {
+    if (isInteractiveClick(event)) {
+        return;
+    }
+
+    openApplicationModal(this.getAttribute('data-row-href'));
 });
 
 $(document).on('submit', '#application-modal form', async function (event) {

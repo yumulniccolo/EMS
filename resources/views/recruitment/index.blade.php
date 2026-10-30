@@ -11,9 +11,9 @@
 @endphp
 
 {{--
-    The pipeline from the database: Applied, Demo Interview, Offered, Hired, Rejected, and Cancelled (by the applicant). A row opens
-    the application page. The applicant's information is collapsible so the list stays short; the resume and portfolio open
-    immediately from the Documents buttons.
+    The pipeline from the database: Applied, Demo Interview, Offered, Hired, Rejected, and Cancelled (by the applicant). Clicking a row
+    opens the application in a window; the applicant's name opens it as a page. The resume and portfolio are in the
+    Documents section of the application.
 --}}
 @section('content')
     <div class="d-grid gap-4">
@@ -119,15 +119,13 @@
                                     <a class="sort-button text-decoration-none" href="{{ route('recruitment.index', array_merge(request()->except('page'), ['sort' => $key, 'dir' => $sort === $key && $dir === 'asc' ? 'desc' : 'asc'])) }}">{{ $label }}</a>
                                 </th>
                             @endforeach
-                            <th scope="col">Documents</th>
-                            <th scope="col"><span class="visually-hidden">Details</span></th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($applications as $application)
                             @php($profile = $application->applicant->applicantProfile)
                             @php($interview = $application->activeInterview())
-                            <tr>
+                            <tr class="employee-row" data-row-href="{{ route('recruitment.show', $application) }}" data-row-modal>
                                 <td>
                                     <a class="text-reset fw-medium" href="{{ route('recruitment.show', $application) }}">{{ $profile->last_name }}, {{ $profile->first_name }}</a>
                                     <small class="d-block text-body-secondary">{{ $application->applicant->email }}</small>
@@ -146,38 +144,9 @@
                                         <small class="d-block text-body-secondary">{{ $interview->starts_at->format('M j, g:i A') }}</small>
                                     @endif
                                 </td>
-                                <td>
-                                    @foreach ($application->documents as $document)
-                                        <a class="btn btn-sm btn-outline-secondary mb-1" href="{{ route('documents.show', $document->uuid) }}" target="_blank" rel="noopener">{{ ucfirst($document->kind) }}</a>
-                                    @endforeach
-                                </td>
-                                <td class="text-end text-nowrap">
-                                    <button type="button" class="btn btn-sm btn-link" data-bs-toggle="collapse" data-bs-target="#info-{{ $application->id }}" aria-expanded="false" aria-controls="info-{{ $application->id }}">Info</button>
-                                    <a class="btn btn-sm btn-outline-primary" href="{{ route('recruitment.show', $application) }}" data-application-modal>Open</a>
-                                </td>
-                            </tr>
-                            <tr class="collapse" id="info-{{ $application->id }}">
-                                <td colspan="6" class="bg-body-tertiary">
-                                    <div class="row g-3 small">
-                                        <div class="col-md-4">
-                                            <strong>Contact</strong><br>
-                                            {{ $application->applicant->email }}<br>{{ $profile->phone }}<br>{{ $profile->address }}
-                                        </div>
-                                        <div class="col-md-4">
-                                            <strong>Personal</strong><br>
-                                            {{ $profile->birthdate?->format('M j, Y') }} · {{ $profile->sex?->value }} · {{ $profile->marital_status?->value }}
-                                        </div>
-                                        <div class="col-md-4">
-                                            <strong>Education</strong>
-                                            @foreach ($application->education ?? [] as $row)
-                                                <div>{{ $row['school'] ?? '' }} {{ ! empty($row['course']) ? '· '.$row['course'] : '' }}</div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                </td>
                             </tr>
                         @empty
-                            <tr><td colspan="6" class="employees-empty text-center"><strong>No applications found</strong> Applications appear when applicants apply online.</td></tr>
+                            <tr><td colspan="4" class="employees-empty text-center"><strong>No applications found</strong> Applications appear when applicants apply online.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

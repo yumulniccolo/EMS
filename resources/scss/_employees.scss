@@ -75,8 +75,17 @@
     }
 }
 
+// A row that opens a page or window when clicked (data-row-href): tinted, with a primary bar on its leading edge, while hovered.
 .employee-row {
     cursor: pointer;
+
+    &:hover > * {
+        --bs-table-bg-state: color-mix(in srgb, var(--bs-primary) 9%, transparent);
+    }
+
+    &:hover > :first-child {
+        box-shadow: inset 3px 0 0 var(--bs-primary), inset 0 0 0 9999px var(--bs-table-bg-state);
+    }
 
     &:focus-visible {
         outline: 2px solid var(--bs-primary);
@@ -182,6 +191,12 @@ th[aria-sort="descending"] .sort-icon-descending {
     }
 }
 
+// A plain table inside a form card (leave credits, new pay rates) shows the card's surface, as the list tables do,
+// instead of Bootstrap's page background.
+.employee-form-card .table {
+    --bs-table-bg: transparent;
+}
+
 .report-preview-table {
     --bs-table-bg: transparent;
 
@@ -221,6 +236,56 @@ th[aria-sort="descending"] .sort-icon-descending {
     border-radius: 50%;
 }
 
+// Card rhythm on the employee profile and My Leave: a heading, then a details list or a plain list, then (maybe) a form.
+// Lists sit on the card itself (not a grey strip), start and end flush with the card's padding, and have even rows;
+// the details lists (dt/dd) get the same gap between rows at every width.
+[data-page="employee-profile"],
+[data-page="employee-leave"] {
+    .employee-form-card {
+        > h2 {
+            margin-bottom: 1rem;
+        }
+
+        > :last-child,
+        > dl:last-child > dd:last-of-type {
+            margin-bottom: 0;
+        }
+
+        dl.row {
+            --bs-gutter-y: 0.625rem;
+
+            > dd {
+                margin-bottom: 0;
+            }
+
+            @include media-breakpoint-down(sm) {
+                > dd {
+                    margin-top: 0;
+                }
+            }
+        }
+
+        // Bootstrap gives a list placed straight in a card the card's own top and bottom border, for edge-to-edge lists; these
+        // lists sit inside the card's padding, so that border would be a stray line under the heading.
+        > .list-group {
+            --bs-list-group-bg: transparent;
+            --bs-list-group-item-padding-y: 0.75rem;
+
+            border-width: 0;
+        }
+
+        .list-group-flush {
+            > .list-group-item:first-child {
+                padding-top: 0;
+            }
+
+            > .list-group-item:last-child {
+                padding-bottom: 0;
+            }
+        }
+    }
+}
+
 // Nine tabs: keep them on one line and let the strip scroll sideways on narrow screens.
 .profile-tabs {
     flex-wrap: nowrap;
@@ -256,4 +321,9 @@ th[aria-sort="descending"] .sort-icon-descending {
 
 .employment-on-leave {
     --bs-progress-bar-bg: #c8871f;
+}
+
+// Leave Requests: the reason-to-reject field keeps a usable width beside its button instead of shrinking in a narrow cell.
+.leave-reject-note {
+    min-width: 11rem;
 }

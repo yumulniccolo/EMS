@@ -238,7 +238,8 @@
 
                         <details>
                             <summary class="fw-medium text-danger">Cancel</summary>
-                            <form method="post" class="d-flex gap-2 mt-1" data-form="cancel">
+                            <form method="post" class="d-flex gap-2 mt-1" data-form="cancel" data-confirm-title="Cancel event"
+                                data-confirm="Cancel this? It is marked cancelled on the calendar." data-confirm-button="Cancel It" data-confirm-cancel="Keep It">
                                 @csrf
                                 <input class="form-control" type="text" name="reason" placeholder="Reason" required aria-label="Reason for cancelling">
                                 <button type="submit" class="btn btn-outline-danger text-nowrap">Cancel It</button>
@@ -247,7 +248,8 @@
 
                         <details data-interview-only>
                             <summary class="fw-medium text-danger">Reject the applicant</summary>
-                            <form method="post" class="d-flex gap-2 mt-1" data-form="reject">
+                            <form method="post" class="d-flex gap-2 mt-1" data-form="reject" data-confirm-title="Reject applicant"
+                                data-confirm="Reject this applicant? They are told the reason you gave." data-confirm-button="Reject">
                                 @csrf
                                 <input class="form-control" type="text" name="reason" placeholder="Reason (the applicant is told)" required aria-label="Reason for rejecting">
                                 <button type="submit" class="btn btn-outline-danger text-nowrap">Reject</button>

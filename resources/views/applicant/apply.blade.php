@@ -5,7 +5,8 @@
 {{--
     The application form. The position is automatic (the one chosen). The applicant's profile is not asked again: only the resume
     (education, work history, and a file) and an optional portfolio go with this application. Emergency contact and government
-    and tax details are asked for after hiring.
+    and tax details are asked for after hiring. Save Draft keeps what was typed (not the files) in this browser for this applicant and
+    position, without the Submit checks; the form fills itself from the draft when it is opened again (resources/js/application-drafts.js).
 --}}
 @section('content')
     <div class="d-grid gap-4">
@@ -13,6 +14,10 @@
             <a class="btn btn-outline-secondary d-inline-flex align-items-center gap-2" href="{{ route('applicant.positions.show', $position->id) }}">
                 <x-icon name="back" /> Back to the position
             </a>
+        </div>
+
+        <div class="alert alert-secondary mb-0 d-none" role="status" data-draft-restored>
+            Your saved draft for this position is filled in below. Attach your resume again before you submit; files are not kept in a draft.
         </div>
 
         <div>
@@ -26,7 +31,9 @@
             </div>
         @endif
 
-        <form method="post" action="{{ route('applicant.applications.store') }}" enctype="multipart/form-data" class="d-grid gap-4" novalidate>
+        <form method="post" action="{{ route('applicant.applications.store') }}" enctype="multipart/form-data" class="d-grid gap-4" novalidate
+            data-application-draft data-draft-owner="{{ auth()->id() }}" data-draft-position="{{ $position->id }}" data-draft-title="{{ $position->title }}"
+            data-draft-unit="{{ $position->college?->name ?? $position->office?->name }}" data-draft-has-old="{{ session()->hasOldInput() ? '1' : '0' }}">
             @csrf
             <input type="hidden" name="job_title_id" value="{{ $position->id }}">
 
@@ -89,7 +96,8 @@
             </section>
 
             <div class="d-flex justify-content-end gap-2">
-                <a class="btn btn-outline-secondary" href="{{ route('applicant.positions') }}">Cancel</a>
+                <a class="btn btn-outline-secondary me-auto" href="{{ route('applicant.positions') }}">Cancel</a>
+                <button type="button" class="btn btn-outline-primary" data-save-draft>Save Draft</button>
                 <button type="submit" class="btn btn-primary">Submit Application</button>
             </div>
         </form>

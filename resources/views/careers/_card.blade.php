@@ -32,7 +32,7 @@
             @if ($applied)
                 <span class="btn btn-sm disabled">Already applied</span>
             @elseif ($canApplyHere)
-                <a class="btn btn-sm btn-primary" href="{{ $applyUrl }}" aria-label="Apply for {{ $position->title }}">Apply Now</a>
+                <a class="btn btn-sm btn-primary" href="{{ $applyUrl }}" aria-label="Apply for {{ $position->title }}" @guest data-terms-gate @endguest>Apply Now</a>
             @endif
         </div>
     </article>

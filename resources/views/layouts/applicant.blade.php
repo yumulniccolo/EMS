@@ -16,8 +16,9 @@
             The Applicant interface: the same shell as the HR and Employee layouts, with its own header and sidebar.
             Only a signed-in applicant can stay on these pages; anyone else is sent to the shared Login page
             (resources/js/applicant-portal.js).
+            data-portal-ui: the jQuery UI widgets of the HR pages apply inside it too (resources/js/admin-widgets.js).
         --}}
-        <div class="app-shell" data-app-shell data-server-user>
+        <div class="app-shell" data-app-shell data-server-user data-portal-ui>
             <x-applicant-header />
 
             <x-applicant-sidebar />

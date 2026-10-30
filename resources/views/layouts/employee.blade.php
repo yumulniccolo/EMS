@@ -12,8 +12,11 @@
         @stack('styles')
     </head>
     <body>
-        {{-- The Employee interface: the same shell as the HR layout, with its own header and sidebar. --}}
-        <div class="app-shell" data-app-shell data-server-user>
+        {{--
+            The Employee interface: the same shell as the HR layout, with its own header and sidebar.
+            data-portal-ui: the jQuery UI widgets of the HR pages apply inside it too (resources/js/admin-widgets.js).
+        --}}
+        <div class="app-shell" data-app-shell data-server-user data-portal-ui>
             <x-employee-header />
 
             <x-employee-sidebar />

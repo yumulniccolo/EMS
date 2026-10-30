@@ -4,9 +4,12 @@
 
 {{--
     Create Account for new applicants, reached from the public Careers website. The Terms and Conditions with the Privacy
-    Notice are read on this page and accepted with a checkbox. Name, surname, and middle name are separate boxes. The account is
+    Notice are accepted in a window first (components/applicant-terms-modal.blade.php): on the Careers page before coming here,
+    or here when this page is opened directly. Name, surname, and middle name are separate boxes. The account is
     created on the server; the applicant is then asked for their one-time profile.
 --}}
+@php($termsAccepted = request('terms') === 'accepted' || old('terms'))
+
 @section('content')
     <div class="row g-0 min-vh-100">
         <x-login-brand tagline="Create an account to apply for open positions." />
@@ -15,6 +18,7 @@
             <form class="login-form w-100 d-grid gap-3" method="post" action="{{ route('applicant.register.store') }}" novalidate>
                 @csrf
                 @if ($position) <input type="hidden" name="position" value="{{ $position->id }}"> @endif
+                <input type="hidden" name="terms" value="{{ $termsAccepted ? '1' : '' }}" data-terms-input>
 
                 <div>
                     <h2 class="login-form-title mb-1">Create an Applicant Account</h2>
@@ -48,28 +52,6 @@
                 </div>
                 <div><x-password-field name="password_confirmation" label="Confirm Password" required icon-only autocomplete="new-password" /></div>
 
-                <section class="border rounded p-3 overflow-auto" style="max-height: 14rem" aria-labelledby="terms-title" tabindex="0">
-                    <h3 class="fs-6" id="terms-title">Terms and Conditions and Privacy Notice</h3>
-                    <ol class="small">
-                        <li>The Applicant Portal lets you create an account, apply for open positions, and follow your applications.</li>
-                        <li>Give true, complete, and current information. False or misleading information may disqualify your application.</li>
-                        <li>Keep your login details to yourself. You are responsible for what is done with your account.</li>
-                        <li>Applying does not guarantee a demo interview or a job offer. HR decides how each application moves forward.</li>
-                        <li>Interview schedules are set by HR and may change. Check your Calendar and Applications pages for the latest.</li>
-                    </ol>
-                    <p class="small mb-1">
-                        We collect the personal information you give, such as your name, contact details, birthdate, and the documents you attach, to assess
-                        your application, contact you, and schedule your interview. Only the HR staff who handle recruitment can view it. If you are hired,
-                        the details are used to start your employee record. This follows the Data Privacy Act of 2012 (Republic Act No. 10173).
-                    </p>
-                </section>
-
-                <div class="form-check">
-                    <input class="form-check-input @error('terms') is-invalid @enderror" type="checkbox" id="terms" name="terms" value="1" @checked(old('terms'))>
-                    <label class="form-check-label" for="terms">I have read and agree to the Terms and Conditions and the Privacy Notice.</label>
-                    @error('terms') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-                </div>
-
                 <button type="submit" class="btn btn-primary login-submit">Create Account</button>
 
                 <div class="d-grid gap-2 border-top pt-3 text-center">
@@ -79,4 +61,6 @@
             </form>
         </section>
     </div>
+
+    <x-applicant-terms-modal :required="! $termsAccepted" :cancel-url="route('careers.index')" />
 @endsection

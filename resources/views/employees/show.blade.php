@@ -11,8 +11,8 @@
 @endphp
 
 {{--
-    An employee's profile (201 file) from the database. Everyone in HR sees it. Government IDs are masked; the HR Admin can
-    reveal one for a stated reason, transfer the employee, change the salary step, and archive or restore the record.
+    An employee's profile (201 file) from the database. Everyone in HR sees it. Government IDs are shown masked only. The HR
+    Admin can transfer the employee, change the salary step, and archive or restore the record.
 --}}
 @section('content')
     <div class="d-grid gap-4" data-page="employee-profile">
@@ -95,24 +95,11 @@
 
                 <section class="card employee-form-card" aria-labelledby="ids-title">
                     <h2 class="fs-5" id="ids-title">Government IDs</h2>
-                    <p class="text-body-secondary">Numbers are masked. @if ($isHead) Reveal one only when you have a reason; it is recorded. @endif</p>
+                    <p class="text-body-secondary">Numbers are masked.</p>
                     <ul class="list-group list-group-flush">
                         @foreach ($idLabels as $key => $label)
                             <li class="list-group-item d-flex justify-content-between align-items-center gap-3 flex-wrap px-0">
                                 <span><strong>{{ $label }}</strong> <span class="tabular-nums">{{ isset($masked[$key]) ? '•••• '.$masked[$key] : 'Not on file' }}</span></span>
-                                @if ($isHead && isset($masked[$key]))
-                                    <form method="post" action="{{ route('government-ids.reveal', [$employee, $key]) }}" class="d-flex gap-2">
-                                        @csrf
-                                        <label class="visually-hidden" for="reason-{{ $key }}">Reason for revealing the {{ $label }} number</label>
-                                        <select class="form-select form-select-sm" id="reason-{{ $key }}" name="reason" required>
-                                            <option value="">Reason</option>
-                                            @foreach ($revealReasons as $value => $reasonLabel)
-                                                <option value="{{ $value }}">{{ $reasonLabel }}</option>
-                                            @endforeach
-                                        </select>
-                                        <button type="submit" class="btn btn-sm btn-outline-secondary">Reveal</button>
-                                    </form>
-                                @endif
                             </li>
                         @endforeach
                     </ul>
@@ -120,7 +107,7 @@
 
                 <section class="card employee-form-card" aria-labelledby="documents-title">
                     <h2 class="fs-5" id="documents-title">Documents</h2>
-                    <ul class="list-group list-group-flush mb-3">
+                    <ul @class(['list-group list-group-flush', 'mb-3' => ! $isArchived])>
                         @forelse ($employee->documents()->latest('id')->get() as $document)
                             <li class="list-group-item px-0 d-flex justify-content-between align-items-center gap-2 flex-wrap">
                                 <span><span class="fw-medium">{{ ucfirst($document->kind) }}</span> · {{ $document->original_name }} <small class="text-body-secondary">({{ $document->humanSize() }}, {{ $document->created_at->format('M j, Y') }})</small></span>
@@ -131,15 +118,15 @@
                         @endforelse
                     </ul>
                     @unless ($isArchived)
-                        <form method="post" action="{{ route('employees.documents.store', $employee) }}" enctype="multipart/form-data" class="row g-2" novalidate>
+                        <form method="post" action="{{ route('employees.documents.store', $employee) }}" enctype="multipart/form-data" class="row g-3" novalidate>
                             @csrf
-                            <div class="col-md-4"><x-select-field name="kind" label="Type" :options="\App\Http\Controllers\EmployeePortalController::DOCUMENT_KINDS" required /></div>
-                            <div class="col-md-5">
+                            <div class="col-sm-5"><x-select-field name="kind" label="Type" :options="\App\Http\Controllers\EmployeePortalController::DOCUMENT_KINDS" required /></div>
+                            <div class="col-sm-7">
                                 <label for="document-file" class="form-label is-required">File</label>
                                 <input type="file" class="form-control @error('file') is-invalid @enderror" id="document-file" name="file" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" required>
                                 @error('file') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
-                            <div class="col-md-3 d-flex align-items-end"><button type="submit" class="btn btn-outline-primary w-100">Add Document</button></div>
+                            <div class="col-12 d-flex justify-content-end"><button type="submit" class="btn btn-sm btn-outline-primary">Add Document</button></div>
                         </form>
                     @endunless
                 </section>
@@ -155,7 +142,8 @@
                                     <div class="fw-medium">{{ $contact->name }} @if ($contact->is_primary) <span class="ems-chip">Primary</span> @endif</div>
                                     <small class="text-body-secondary">{{ $contact->relationship }} · {{ $contact->phone }}@if ($contact->address) · {{ $contact->address }} @endif</small>
                                 </div>
-                                <form method="post" action="{{ route('emergency-contacts.destroy', [$employee, $contact]) }}">
+                                <form method="post" action="{{ route('emergency-contacts.destroy', [$employee, $contact]) }}" data-confirm-title="Remove emergency contact"
+                                    data-confirm="Remove {{ $contact->name }} from the emergency contacts? This cannot be undone." data-confirm-button="Remove">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Remove {{ $contact->name }}">Remove</button>
@@ -165,7 +153,7 @@
                             <li class="list-group-item px-0 text-body-secondary">No emergency contacts on file.</li>
                         @endforelse
                     </ul>
-                    <form method="post" action="{{ route('emergency-contacts.store', $employee) }}" class="row g-2" novalidate>
+                    <form method="post" action="{{ route('emergency-contacts.store', $employee) }}" class="row g-3" novalidate>
                         @csrf
                         <div class="col-md-6"><x-field name="name" label="Name" required /></div>
                         <div class="col-md-6"><x-field name="relationship" label="Relationship" required /></div>
@@ -184,7 +172,7 @@
                 <section class="card employee-form-card" aria-labelledby="leave-title">
                     <h2 class="fs-5" id="leave-title">Leave for {{ now()->year }}</h2>
                     @if ($leaveBalances === [])
-                        <p class="text-body-secondary mb-0">This employee earns no leave credits (part-time staff do not).</p>
+                        <p class="text-body-secondary mb-3">This employee earns no leave credits (part-time staff do not).</p>
                     @else
                         <div class="table-responsive">
                             <table class="table table-sm align-middle mb-3">
@@ -230,14 +218,14 @@
                 </section>
 
                 <section class="card employee-form-card" aria-labelledby="contract-title">
-                    <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
-                        <h2 class="fs-5" id="contract-title">Contract and Agreements</h2>
+                    <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap mb-2">
+                        <h2 class="fs-5 mb-0" id="contract-title">Contract and Agreements</h2>
                         @if ($isHead && ! $isArchived)
                             <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#edit-contract" aria-expanded="false" aria-controls="edit-contract">Edit Contract</button>
                         @endif
                     </div>
 
-                    <p class="mb-2">
+                    <p class="mb-3">
                         <strong>{{ $employee->jobTitle->title }}</strong> · {{ $employee->employment_type->label() }}
                         @if ($employee->employment_type === \App\Enums\EmploymentType::PartTime) · {{ $employee->weekly_hours }} hours a week @endif
                         @if ($employee->contract_ends_on)
@@ -257,7 +245,7 @@
                             <div class="border rounded p-3 mb-3">
                                 <h3 class="fs-6">Edit the contract</h3>
                                 <p class="small text-body-secondary">Nothing changes when you save. The employee gets an agreement to accept by signing; if they decline, they stay as they are.</p>
-                                <form method="post" action="{{ route('employees.transfer', $employee) }}" class="row g-2" novalidate>
+                                <form method="post" action="{{ route('employees.transfer', $employee) }}" class="row g-3" novalidate>
                                     @csrf
                                     <div class="col-12"><x-select-field name="job_title_id" label="Job title" :options="$jobTitleOptions" :value="$employee->job_title_id" grouped required /></div>
                                     <div class="col-md-6"><x-select-field name="extra_college_id" label="Also teaches in" :options="$colleges" placeholder="None" /></div>
@@ -265,7 +253,7 @@
                                     <div class="col-md-6" data-employment-type><x-select-field name="employment_type" label="Employment type" :options="['full_time' => 'Full-time', 'part_time' => 'Part-time']" :value="$employee->employment_type->value" required /></div>
                                     <div class="col-md-6"><x-field name="effective_date" type="date" label="Effective date" :value="now()->toDateString()" required /></div>
                                     <div class="col-12" data-part-time-fields>
-                                        <div class="row g-2">
+                                        <div class="row g-3">
                                             <div class="col-sm-4"><x-field name="weekly_hours" type="number" min="1" max="39" label="Weekly hours" :value="$employee->weekly_hours < 40 ? $employee->weekly_hours : 20" /></div>
                                             <div class="col-sm-4"><x-select-field name="contract_term" label="Contract ends with" :options="$contractTerms" placeholder="Choose" /></div>
                                             <div class="col-sm-4"><x-select-field name="academic_year" label="Academic year" :options="$academicYears" placeholder="Choose" /></div>
@@ -334,7 +322,8 @@
                             </form>
                         @else
                             <p class="text-body-secondary">Archiving removes the employee from the list and turns off their login. Nothing is deleted.</p>
-                            <form method="post" action="{{ route('employees.status', $employee) }}" class="row g-2" novalidate>
+                            <form method="post" action="{{ route('employees.status', $employee) }}" class="row g-3" novalidate data-confirm-title="Archive employee"
+                                data-confirm="Archive {{ $employee->full_name }}? They leave the Employees list and can no longer sign in. You can restore the record later." data-confirm-button="Archive Employee">
                                 @csrf
                                 @method('PUT')
                                 <div class="col-md-4"><x-select-field name="status" label="Status" :options="$archiveStatuses" required /></div>

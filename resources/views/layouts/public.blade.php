@@ -67,7 +67,7 @@
                         @else
                             <div class="d-flex flex-wrap align-items-center gap-2 pb-3 pb-lg-0 me-lg-2">
                                 <a class="btn btn-sm btn-outline-light" href="{{ route('login') }}">Login</a>
-                                <a class="btn btn-sm btn-light" href="{{ route('applicant.register') }}">Create Account</a>
+                                <a class="btn btn-sm btn-light" href="{{ route('applicant.register') }}" data-terms-gate>Create Account</a>
                             </div>
                         @endauth
                     </div>
@@ -116,7 +116,7 @@
                             <li><a href="{{ route('careers.index') }}#open-positions">Open Positions</a></li>
                             <li><a href="{{ route('careers.index') }}#about">About PLP Careers</a></li>
                             <li><a href="{{ route('login') }}">Login</a></li>
-                            <li><a href="{{ route('applicant.register') }}">Create Account</a></li>
+                            <li><a href="{{ route('applicant.register') }}" data-terms-gate>Create Account</a></li>
                         </ul>
                     </div>
                 </div>
@@ -126,6 +126,9 @@
                 </p>
             </div>
         </footer>
+
+        {{-- Create Account and Apply Now (for a visitor) open the Terms and Conditions first. --}}
+        <x-applicant-terms-modal />
 
         @stack('scripts')
     </body>

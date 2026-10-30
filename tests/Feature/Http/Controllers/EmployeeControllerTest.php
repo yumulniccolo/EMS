@@ -234,13 +234,14 @@ describe('the profile', function () {
         $this->actingAs(hrAdmin())->get(route('employees.show', $employee))->assertSee('Vacation Leave')->assertSee('7.5')->assertDontSee('Special Privilege Leave');
     });
 
-    it('shows the HR Admin the transfer, step, archive, and reveal controls but not HR Staff', function () {
+    it('shows the HR Admin the transfer, step, and archive controls but not HR Staff, and no one a reveal control', function () {
         $employee = Employee::factory()->create();
 
         $this->actingAs(hrAdmin())->get(route('employees.show', $employee))
             ->assertSee('Edit the contract')
             ->assertSee('Archive Employee')
-            ->assertSee('Reveal');
+            ->assertDontSee(route('government-ids.reveal', [$employee, 'tin']), escape: false)
+            ->assertDontSee('Reveal');
 
         $this->actingAs(hrStaff())->get(route('employees.show', $employee))
             ->assertOk()

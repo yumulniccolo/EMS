@@ -119,6 +119,47 @@ describe('the employee portal', function () {
         $this->get(route('employee.profile'))->assertSee('Zenaida Quizon')->assertSee($employee->employee_no);
     });
 
+    it('lays out the dashboard with summary cards, upcoming leave, information, quick links, and benefits', function () {
+        $employee = Employee::factory()->partTime()->create(['phone' => '09178889999']);
+        $user = User::factory()->create(['employee_id' => $employee->id]);
+        LeaveRequest::factory()->approved()->create(['employee_id' => $employee->id, 'start_date' => now()->addDays(5)->toDateString(), 'end_date' => now()->addDays(6)->toDateString(), 'days' => 2]);
+        LeaveRequest::factory()->create(['employee_id' => $employee->id]);
+        Benefit::query()->create(['name' => 'Rice allowance', 'description' => 'Monthly', 'full_time_only' => false, 'is_active' => true]);
+        Benefit::query()->create(['name' => 'Full-time bonus', 'description' => 'Yearly', 'full_time_only' => true, 'is_active' => true]);
+
+        $this->actingAs($user)->get(route('employee.dashboard'))
+            ->assertOk()
+            ->assertSeeInOrder(['Welcome,', 'Status', 'Leave Taken', 'Upcoming Leave', 'Awaiting Approval',
+                'Upcoming approved leave', 'My information', 'Quick links', 'My benefits', 'Leave credits', 'Upcoming', 'Notifications'])
+            ->assertSee('In 5 days')
+            ->assertSee('09178889999')
+            ->assertSee(route('employee.profile'), escape: false)
+            ->assertSee(route('employee.files'), escape: false)
+            ->assertSee(route('employee.benefits'), escape: false)
+            ->assertSee('Rice allowance')
+            ->assertDontSee('Full-time bonus');
+    });
+
+    it('opens each part of the employee\'s profile in its own window from buttons on the page', function () {
+        $employee = Employee::factory()->create(['phone' => '09175556666']);
+        $employee->emergencyContacts()->create(['name' => 'Rosa Ramos', 'relationship' => 'Parent', 'phone' => '09170000001', 'is_primary' => true]);
+        $user = User::factory()->create(['employee_id' => $employee->id]);
+
+        $page = $this->actingAs($user)->get(route('employee.profile'))->assertOk();
+
+        foreach (['employment', 'government', 'contact', 'emergency', 'security'] as $section) {
+            $page->assertSee('data-bs-target="#profile-'.$section.'-modal"', escape: false)
+                ->assertSee('id="profile-'.$section.'-modal"', escape: false);
+        }
+
+        $page->assertSeeInOrder(['Employment Information', 'Government IDs and Tax IDs', 'Contact Details', 'Emergency Contacts', 'Security'])
+            ->assertSee(route('employee.profile.update'), escape: false)
+            ->assertSee('09175556666')
+            ->assertSee('Rosa Ramos')
+            ->assertSee(route('employee.emergency-contacts.store'), escape: false)
+            ->assertSee(route('password.change'), escape: false);
+    });
+
     it('updates the employee\'s own contact details and emergency contacts, and nothing else', function () {
         $employee = Employee::factory()->create();
         $employee->emergencyContacts()->create(['name' => 'First', 'relationship' => 'Parent', 'phone' => '09170000001', 'is_primary' => true]);
@@ -252,7 +293,9 @@ describe('job positions', function () {
         $this->actingAs(hrStaff())->get(route('job-positions.index'))->assertOk()->assertSee('Open Post')->assertDontSee('Open a new posting');
         $this->get(route('job-positions.index', ['status' => 'open']))->assertSee('Open Post')->assertDontSee('Closed Post');
         $this->get(route('job-positions.edit', $open))->assertForbidden();
-        $this->actingAs(hrAdmin())->get(route('job-positions.edit', $open))->assertOk()->assertDontSee('Benefits <small');
+        $this->actingAs(hrAdmin())->get(route('job-positions.edit', $open))->assertOk()->assertDontSee('Benefits <small')
+            ->assertSee(route('job-positions.close', $open), escape: false);
+        $this->get(route('job-positions.index'))->assertSee('data-row-href="'.route('job-positions.edit', $open).'"', escape: false);
     });
 
     it('opens a posting with a part-time term that sets the end of contract, and closes it', function () {
@@ -284,12 +327,13 @@ describe('job positions', function () {
 
 describe('contracts', function () {
     it('lists contracts that are ending or ended for the HR Admin', function () {
-        Employee::factory()->partTime()->create(['last_name' => 'Endingperson', 'contract_ends_on' => now()->addDays(20)]);
+        $ending = Employee::factory()->partTime()->create(['last_name' => 'Endingperson', 'contract_ends_on' => now()->addDays(20)]);
         Employee::factory()->partTime()->create(['last_name' => 'Endedperson', 'contract_ends_on' => now()->subDays(5)]);
         Employee::factory()->partTime()->create(['last_name' => 'Farperson', 'contract_ends_on' => now()->addMonths(6)]);
         Employee::factory()->create(['last_name' => 'Fulltimeperson']);
 
-        $this->actingAs(hrAdmin())->get(route('contracts.index'))->assertSee('Endingperson')->assertSee('Endedperson')->assertSee('Ended')->assertDontSee('Farperson')->assertDontSee('Fulltimeperson');
+        $this->actingAs(hrAdmin())->get(route('contracts.index'))->assertSee('Endingperson')->assertSee('Endedperson')->assertSee('Ended')->assertDontSee('Farperson')->assertDontSee('Fulltimeperson')
+            ->assertSee('data-row-href="'.route('employees.show', $ending).'#contract-title"', escape: false);
         $this->actingAs(hrStaff())->get(route('contracts.index'))->assertForbidden();
     });
 });

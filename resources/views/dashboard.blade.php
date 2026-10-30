@@ -45,7 +45,7 @@
                         @foreach ($headcount as $college)
                             <div>
                                 <div class="d-flex justify-content-between small"><span>{{ $college->name }}</span><strong class="tabular-nums">{{ $college->headcount }}</strong></div>
-                                <div class="progress" role="progressbar" aria-label="{{ $college->name }}: {{ $college->headcount }}"><div class="progress-bar" style="width: {{ $college->headcount / $headcountMax * 100 }}%"></div></div>
+                                <div class="progress" data-progressbar data-value="{{ $college->headcount }}" data-max="{{ $headcountMax }}" aria-label="{{ $college->name }}: {{ $college->headcount }}"></div>
                             </div>
                         @endforeach
                     </div>
