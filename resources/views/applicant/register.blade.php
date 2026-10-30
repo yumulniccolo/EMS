@@ -43,10 +43,10 @@
                 <div><x-field name="email" type="email" label="Personal Email" required autocomplete="email" placeholder="name@gmail.com" /></div>
 
                 <div>
-                    <x-field name="password" type="password" label="Password" required autocomplete="new-password"
+                    <x-password-field name="password" label="Password" required icon-only autocomplete="new-password"
                         hint="At least 8 characters, with an uppercase letter, a lowercase letter, and a number." />
                 </div>
-                <div><x-field name="password_confirmation" type="password" label="Confirm Password" required autocomplete="new-password" /></div>
+                <div><x-password-field name="password_confirmation" label="Confirm Password" required icon-only autocomplete="new-password" /></div>
 
                 <section class="border rounded p-3 overflow-auto" style="max-height: 14rem" aria-labelledby="terms-title" tabindex="0">
                     <h3 class="fs-6" id="terms-title">Terms and Conditions and Privacy Notice</h3>

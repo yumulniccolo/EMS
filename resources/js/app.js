@@ -1,6 +1,7 @@
 import './theme.js';
 import './bootstrap.js';
 import './jquery-ui.js';
+import './ui-widgets.js';
 import './auto-submit.js';
 import './password-toggle.js';
 import './app-shell.js';

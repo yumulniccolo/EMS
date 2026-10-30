@@ -1,0 +1,123 @@
+// jQuery UI widgets (Datepicker, Autocomplete, Sortable) restyled with Bootstrap's colour variables, so they follow
+// the light and dark themes and sit above Bootstrap modals.
+.ui-datepicker,
+.ui-autocomplete {
+    z-index: 1100 !important;
+    color: var(--bs-body-color);
+    background: var(--bs-body-bg);
+    border: var(--bs-border-width) solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    box-shadow: var(--bs-box-shadow);
+    font-family: inherit;
+    font-size: .9rem;
+}
+
+.ui-datepicker {
+    width: 18rem;
+    padding: .5rem;
+
+    .ui-datepicker-header {
+        background: transparent;
+        border: 0;
+    }
+
+    select {
+        color: var(--bs-body-color);
+        background: var(--bs-body-bg);
+        border: var(--bs-border-width) solid var(--bs-border-color);
+        border-radius: var(--bs-border-radius-sm);
+    }
+
+    th {
+        color: var(--bs-secondary-color);
+        font-weight: 600;
+    }
+
+    td a,
+    td span {
+        padding: .35rem;
+        text-align: center;
+        color: var(--bs-body-color);
+        background: transparent;
+        border: 0;
+        border-radius: var(--bs-border-radius-sm);
+    }
+
+    td a:hover {
+        background: var(--bs-tertiary-bg);
+    }
+
+    .ui-range-day a {
+        background: var(--bs-primary-bg-subtle);
+        border-radius: 0;
+    }
+
+    .ui-state-highlight {
+        background: var(--bs-secondary-bg);
+        font-weight: 600;
+    }
+
+    .ui-state-active {
+        color: #fff;
+        background: var(--bs-primary);
+    }
+
+    .ui-state-disabled {
+        opacity: .35;
+    }
+
+    .ui-datepicker-prev,
+    .ui-datepicker-next {
+        cursor: pointer;
+    }
+}
+
+.ui-autocomplete {
+    padding: .25rem;
+    max-height: 16rem;
+    overflow-y: auto;
+
+    .ui-menu-item-wrapper {
+        padding: .4rem .6rem;
+        border: 0;
+        border-radius: var(--bs-border-radius-sm);
+    }
+
+    .ui-state-active {
+        color: var(--bs-body-color);
+        background: var(--bs-tertiary-bg);
+        border: 0;
+        margin: 0;
+    }
+}
+
+// The range field is read-only so only the calendar changes it, but it should not look disabled.
+.date-range-input {
+    cursor: pointer;
+    background-color: var(--bs-body-bg);
+}
+
+.sortable-row {
+    position: relative;
+
+    &.ui-sortable-helper {
+        background: var(--bs-body-bg);
+        box-shadow: var(--bs-box-shadow);
+    }
+}
+
+.sort-handle {
+    position: absolute;
+    left: -.95rem;
+    top: 2.1rem;
+    width: auto;
+    color: var(--bs-secondary-color);
+    cursor: grab;
+    letter-spacing: -.15em;
+    line-height: 1;
+    user-select: none;
+
+    &:active {
+        cursor: grabbing;
+    }
+}

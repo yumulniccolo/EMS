@@ -40,7 +40,7 @@
                     <label for="leave-search" class="visually-hidden">Search employees</label>
                     <div class="search-field">
                         <x-icon name="search" />
-                        <input type="search" class="form-control" id="leave-search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Search employees..." autocomplete="off">
+                        <input type="search" class="form-control" id="leave-search" name="q" value="{{ $filters['q'] ?? '' }}" data-suggest-url="{{ route('employees.suggest') }}" placeholder="Search employees..." autocomplete="off">
                     </div>
                 </div>
                 <div class="col-md-6 col-xl-3">

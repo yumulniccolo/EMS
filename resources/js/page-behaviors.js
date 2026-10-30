@@ -136,3 +136,151 @@ $(document).on('hidden.bs.modal', '#application-modal', function () {
         window.location.reload();
     }
 });
+
+// A table row that opens a modal (data-bs-toggle="modal" on the row) also opens with Enter or Space.
+$(document).on('keydown', 'tr[data-bs-toggle="modal"]', function (event) {
+    if ((event.key === 'Enter' || event.key === ' ') && event.target === this) {
+        event.preventDefault();
+        window.bootstrap.Modal.getOrCreateInstance(document.querySelector(this.getAttribute('data-bs-target'))).show();
+    }
+});
+
+// A modal marked data-open-on-load opens as the page loads (a form inside it came back with errors).
+$(() => {
+    document.querySelectorAll('.modal[data-open-on-load]').forEach((element) => {
+        window.bootstrap.Modal.getOrCreateInstance(element).show();
+    });
+});
+
+// Calendar filters: the Event Type and Status pills hide the chips (data-calendar-type, data-calendar-status) that are not selected.
+function applyCalendarFilters() {
+    const selected = (selector) => $(selector).filter(':checked').map((_, input) => input.value).get();
+    const types = $('[data-calendar-type-filter]').length ? selected('[data-calendar-type-filter]') : null;
+    const statuses = $('[data-calendar-status-filter]').length ? selected('[data-calendar-status-filter]') : null;
+
+    $('.calendar-event').each(function () {
+        const type = this.getAttribute('data-calendar-type');
+        const status = this.getAttribute('data-calendar-status');
+        const hidden = (types !== null && type !== null && !types.includes(type))
+            || (statuses !== null && status !== null && !statuses.includes(status));
+
+        $(this).toggleClass('d-none', hidden);
+    });
+}
+
+$(document).on('change', '[data-calendar-type-filter], [data-calendar-status-filter]', applyCalendarFilters);
+$(document).on('click', '[data-calendar-clear]', () => {
+    $('[data-calendar-type-filter], [data-calendar-status-filter]').prop('checked', true);
+    applyCalendarFilters();
+});
+
+// Tabs marked data-remember-tab reopen on the tab they were left on (a form on a tab sends the page back to this one).
+$(() => {
+    document.querySelectorAll('[data-remember-tab]').forEach((nav) => {
+        const key = `tab:${nav.getAttribute('data-remember-tab')}`;
+
+        try {
+            const saved = sessionStorage.getItem(key);
+            const button = saved ? nav.querySelector(`[data-bs-target="${saved}"]`) : null;
+
+            if (button) {
+                window.bootstrap.Tab.getOrCreateInstance(button).show();
+            }
+        } catch {
+            // Storage can be blocked; the first tab opens.
+        }
+
+        nav.addEventListener('shown.bs.tab', (event) => {
+            try {
+                sessionStorage.setItem(key, event.target.getAttribute('data-bs-target'));
+            } catch {
+                // Nothing to remember it with.
+            }
+        });
+    });
+});
+
+// A link to a page's #security opens its Security tab when it has one (the header's Account menu links there).
+$(() => {
+    const button = window.location.hash === '#security' ? document.querySelector('[data-bs-target="#profile-security"]') : null;
+
+    if (button) {
+        window.bootstrap.Tab.getOrCreateInstance(button).show();
+    }
+});
+
+// The calendar's selected-day panel (components/calendar-day-panel.blade.php): click a day on the month grid and its events are
+// listed on the right, built from the chips already on that day. Choosing an event clicks its chip (the HR details window) or, on
+// the employee calendar, fills the details card.
+function fillDayPanel($day) {
+    const $panel = $('[data-day-panel]');
+
+    if (!$panel.length || !$day.length) {
+        return;
+    }
+
+    const date = $day.attr('data-calendar-day');
+    const heading = new Date(`${date}T00:00:00`).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    const $chips = $day.find('.calendar-event').not('.d-none');
+    const $list = $panel.find('[data-day-events]').empty();
+
+    $('.calendar-day.is-selected').removeClass('is-selected');
+    $day.addClass('is-selected');
+    $panel.find('[data-day-title]').text(heading);
+    $panel.find('[data-day-empty]').toggleClass('d-none', $chips.length > 0);
+    $panel.find('[data-day-details]').addClass('d-none');
+    $panel.find('[data-day-details-empty]').removeClass('d-none');
+
+    $chips.each(function () {
+        const chip = this;
+        const $item = $('<button>', { type: 'button', class: 'list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-2' });
+
+        $item.append($('<span>', { text: $(chip).find('.calendar-event-label').text() }));
+
+        const status = chip.getAttribute('data-status') ?? chip.getAttribute('data-calendar-status');
+
+        if (status) {
+            $item.append($('<span>', { class: 'ems-chip text-capitalize', text: status }));
+        }
+
+        $item.on('click', () => {
+            if (chip.tagName === 'BUTTON') {
+                chip.click();
+
+                return;
+            }
+
+            $list.children().removeClass('active');
+            $item.addClass('active');
+            $panel.find('[data-day-detail="title"]').text(chip.getAttribute('data-title') ?? $(chip).find('.calendar-event-label').text());
+            $panel.find('[data-day-detail="when"]').text(chip.getAttribute('data-when') ?? heading);
+            $panel.find('[data-day-detail="status"]').text(chip.getAttribute('data-status-label') ?? '—');
+            $panel.find('[data-day-detail="place"]').text(chip.getAttribute('data-place') || '—');
+            $panel.find('[data-day-details]').removeClass('d-none');
+            $panel.find('[data-day-details-empty]').addClass('d-none');
+        });
+
+        $list.append($item);
+    });
+}
+
+function selectedCalendarDay() {
+    return $('.calendar-day.is-selected').first();
+}
+
+$(document).on('click', '.calendar-day[data-calendar-day]', function () {
+    fillDayPanel($(this));
+});
+
+$(document).on('change', '[data-calendar-type-filter], [data-calendar-status-filter]', () => fillDayPanel(selectedCalendarDay()));
+$(document).on('click', '[data-calendar-clear]', () => fillDayPanel(selectedCalendarDay()));
+
+$(() => {
+    const $days = $('.calendar-day[data-calendar-day]');
+
+    if (!$days.length || !$('[data-day-panel]').length) {
+        return;
+    }
+
+    fillDayPanel($days.filter('.is-today').first().length ? $days.filter('.is-today').first() : $days.not('.is-outside').first());
+});

@@ -99,7 +99,8 @@
                 <div class="col-md-6 col-xl-3">
                     <div class="input-group">
                         <label class="input-group-text" for="application-applied-on-filter">Application Date</label>
-                        <input type="date" class="form-control" id="application-applied-on-filter" name="applied_on" value="{{ $filters['applied_on'] ?? '' }}">
+                        <x-date-range id="application-applied-on-filter" from-name="applied_from" to-name="applied_to"
+                            :from="$filters['applied_from'] ?? null" :to="$filters['applied_to'] ?? null" placeholder="Any date" />
                     </div>
                 </div>
             </div>

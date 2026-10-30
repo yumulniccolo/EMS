@@ -22,6 +22,7 @@ use App\Services\AcademicCalendar;
 use App\Services\AuditLogger;
 use App\Services\LeaveBalances;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -72,6 +73,34 @@ class EmployeeController extends Controller
                 ->where('category', $type === 'faculty' ? JobTitleCategory::Faculty : JobTitleCategory::NonTeaching)
                 ->orderBy('title')->distinct()->pluck('title', 'title'),
         ]);
+    }
+
+    /**
+     * Name suggestions for the search boxes (jQuery UI Autocomplete): up to eight current employees matching the term.
+     */
+    public function suggest(Request $request): JsonResponse
+    {
+        Gate::authorize('viewAny', Employee::class);
+
+        $term = trim((string) $request->validate(['term' => ['nullable', 'string', 'max:100']])['term'] ?? '');
+
+        if (mb_strlen($term) < 2) {
+            return response()->json([]);
+        }
+
+        return response()->json(
+            Employee::query()
+                ->where('status', EmployeeStatus::Active)
+                ->search($term)
+                ->orderBy('last_name')->orderBy('first_name')
+                ->limit(8)
+                ->get(['first_name', 'last_name', 'employee_no'])
+                ->map(fn (Employee $employee): array => [
+                    'label' => "{$employee->last_name}, {$employee->first_name} ({$employee->employee_no})",
+                    'value' => "{$employee->last_name}, {$employee->first_name}",
+                ])
+                ->all()
+        );
     }
 
     public function create(): View

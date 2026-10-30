@@ -20,14 +20,9 @@
 --}}
 @section('content')
     <div class="d-grid gap-4" data-page="calendar" data-today="{{ now()->toDateString() }}">
-        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
-            <div>
-                <h1 class="page-title">Calendar</h1>
-                <p class="text-body-secondary mt-1 mb-0">Demo interviews, HR events, and employee leave. Drag an upcoming interview or event to move it.</p>
-            </div>
-            <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-2" data-calendar-add-event>
-                <x-icon name="plus" /> Add Event
-            </button>
+        <div>
+            <h1 class="page-title">Calendar</h1>
+            <p class="text-body-secondary mt-1 mb-0">Demo interviews, HR events, and employee leave. Drag an upcoming interview or event to move it.</p>
         </div>
 
         @if (session('conflicts'))
@@ -40,31 +35,67 @@
         @endif
 
         <div class="card employees-filters">
-            <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
-                <div class="d-flex align-items-center gap-2">
-                    <a class="btn btn-outline-secondary btn-sm" href="{{ route('calendar.index', ['month' => $prev, 'who' => $who, 'show' => $show, 'college' => $collegeId]) }}" aria-label="Previous month">‹</a>
-                    <h2 class="fs-5 mb-0">{{ $month->format('F Y') }}</h2>
-                    <a class="btn btn-outline-secondary btn-sm" href="{{ route('calendar.index', ['month' => $next, 'who' => $who, 'show' => $show, 'college' => $collegeId]) }}" aria-label="Next month">›</a>
-                    <a class="btn btn-outline-secondary btn-sm" href="{{ route('calendar.index', ['who' => $who]) }}">Today</a>
+            <div class="row g-3 align-items-start">
+                <fieldset class="col-lg-5">
+                    <legend class="form-label small fw-semibold mb-2">Event Type</legend>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach (['demo-interview' => 'Applicant Demo Interview', 'other' => 'HR Event', 'leave' => 'Employee Leave'] as $value => $label)
+                            <input type="checkbox" class="btn-check" id="calendar-type-{{ $value }}" value="{{ $value }}"
+                                autocomplete="off" checked data-calendar-type-filter>
+                            <label class="btn btn-sm btn-outline-primary" for="calendar-type-{{ $value }}">{{ $label }}</label>
+                        @endforeach
+                    </div>
+                </fieldset>
+
+                <fieldset class="col-lg-5">
+                    <legend class="form-label small fw-semibold mb-2">Event Status</legend>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach (['scheduled' => 'Scheduled', 'completed' => 'Completed', 'approved' => 'Approved', 'cancelled' => 'Cancelled'] as $value => $label)
+                            <input type="checkbox" class="btn-check" id="calendar-status-{{ $value }}" value="{{ $value }}"
+                                autocomplete="off" checked data-calendar-status-filter>
+                            <label class="btn btn-sm btn-outline-primary" for="calendar-status-{{ $value }}">{{ $label }}</label>
+                        @endforeach
+                    </div>
+                </fieldset>
+
+                <div class="col-lg-2 d-flex justify-content-lg-end align-self-lg-end">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-calendar-clear>Clear Filters</button>
                 </div>
-                <form method="get" class="d-flex flex-wrap gap-2" data-auto-submit>
-                    <input type="hidden" name="month" value="{{ $month->format('Y-m') }}">
-                    <label class="visually-hidden" for="cal-show">Show</label>
-                    <select class="form-select form-select-sm w-auto" id="cal-show" name="show"><option value="all">Everything</option><option value="interviews" @selected($show === 'interviews')>Interviews</option><option value="events" @selected($show === 'events')>HR events</option><option value="leave" @selected($show === 'leave')>Employee leave</option></select>
-                    <label class="visually-hidden" for="cal-who">Interviewer</label>
-                    <select class="form-select form-select-sm w-auto" id="cal-who" name="who"><option value="all">All interviews</option><option value="mine" @selected($who === 'mine')>My interviews</option></select>
-                    <label class="visually-hidden" for="cal-college">College</label>
-                    <select class="form-select form-select-sm w-auto" id="cal-college" name="college"><option value="">All colleges</option>@foreach ($colleges as $id => $name)<option value="{{ $id }}" @selected((string) $collegeId === (string) $id)>{{ $name }}</option>@endforeach</select>
-                </form>
             </div>
-            <div class="d-flex flex-wrap gap-3 mt-3 small">
-                <span class="d-inline-flex align-items-center gap-1 type-demo-interview"><span class="calendar-swatch is-confirmed"></span> Demo interview</span>
-                <span class="d-inline-flex align-items-center gap-1 type-other"><span class="calendar-swatch is-confirmed"></span> HR event</span>
-                <span class="d-inline-flex align-items-center gap-1 type-leave"><span class="calendar-swatch is-confirmed"></span> Employee leave</span>
+
+            <form method="get" class="d-flex flex-wrap gap-2 mt-3 pt-3 border-top" data-auto-submit>
+                <input type="hidden" name="month" value="{{ $month->format('Y-m') }}">
+                <input type="hidden" name="show" value="{{ $show }}">
+                <label class="visually-hidden" for="cal-who">Interviewer</label>
+                <select class="form-select form-select-sm w-auto" id="cal-who" name="who"><option value="all">All interviews</option><option value="mine" @selected($who === 'mine')>My interviews</option></select>
+                <label class="visually-hidden" for="cal-college">College</label>
+                <select class="form-select form-select-sm w-auto" id="cal-college" name="college"><option value="">All colleges</option>@foreach ($colleges as $id => $name)<option value="{{ $id }}" @selected((string) $collegeId === (string) $id)>{{ $name }}</option>@endforeach</select>
+                <x-calendar-jump :month="$month" />
+            </form>
+
+            <div class="d-flex flex-wrap gap-3 align-items-center mt-3 pt-3 border-top small" aria-label="Legend" role="list">
+                <span class="d-inline-flex align-items-center gap-1 type-demo-interview" role="listitem"><span class="calendar-swatch is-confirmed"></span> Applicant demo interview</span>
+                <span class="d-inline-flex align-items-center gap-1 type-other" role="listitem"><span class="calendar-swatch is-confirmed"></span> HR event</span>
+                <span class="d-inline-flex align-items-center gap-1 type-leave" role="listitem"><span class="calendar-swatch is-confirmed"></span> Employee leave</span>
             </div>
         </div>
 
-        <div class="card p-2">
+        <div class="row g-4 align-items-start">
+        <div class="col-xl-8">
+        <section class="card employee-form-card" aria-labelledby="calendar-month-title">
+            <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap mb-3">
+                <h2 class="fs-5 mb-0" id="calendar-month-title" aria-live="polite">{{ $month->format('F Y') }}</h2>
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1" data-calendar-add-event>
+                        <x-icon name="plus" />
+                        Add Event
+                    </button>
+                    <a class="btn btn-sm btn-outline-secondary" href="{{ route('calendar.index', ['month' => $prev, 'who' => $who, 'show' => $show, 'college' => $collegeId]) }}" aria-label="Previous month"><x-icon name="chevron-left" /></a>
+                    <a class="btn btn-sm btn-outline-secondary" href="{{ route('calendar.index', ['who' => $who]) }}">Today</a>
+                    <a class="btn btn-sm btn-outline-secondary" href="{{ route('calendar.index', ['month' => $next, 'who' => $who, 'show' => $show, 'college' => $collegeId]) }}" aria-label="Next month"><x-icon name="chevron-right" /></a>
+                </div>
+            </div>
+
             <div class="calendar-weekdays" aria-hidden="true">@foreach ($weekdays as $weekday) <span>{{ $weekday }}</span> @endforeach</div>
             <div class="calendar-grid" role="grid" aria-label="{{ $month->format('F Y') }}">
                 @foreach ($weeks as $week)
@@ -82,7 +113,7 @@
                                     @endphp
                                     <button type="button"
                                         class="calendar-event type-demo-interview {{ $isScheduled ? 'is-tentative' : ($interview->status === InterviewStatus::Completed ? 'is-confirmed' : 'text-decoration-line-through') }}{{ in_array($interview->id, $conflictIds, true) ? ' border-danger' : '' }}"
-                                        data-calendar-chip="interview" @if ($canMove) data-movable @endif
+                                        data-calendar-chip="interview" data-calendar-type="demo-interview" data-calendar-status="{{ $interview->status->value }}" @if ($canMove) data-movable @endif
                                         data-title="{{ $profile->full_name }}" data-subtitle="{{ $application->jobTitle->title }} · {{ $application->jobTitle->college?->code }}"
                                         data-status="{{ $interview->status->label() }}" data-scheduled="{{ $isScheduled ? '1' : '0' }}" data-started="{{ $interview->starts_at->isPast() ? '1' : '0' }}"
                                         data-date="{{ $interview->starts_at->toDateString() }}" data-start="{{ $interview->starts_at->format('H:i') }}" data-end="{{ $interview->ends_at->format('H:i') }}"
@@ -106,7 +137,7 @@
                                 @foreach ($day['events'] as $event)
                                     @php($isScheduled = $event->status === 'scheduled')
                                     <button type="button" class="calendar-event type-other {{ $isScheduled ? 'is-confirmed' : 'text-decoration-line-through' }}"
-                                        data-calendar-chip="event" @if ($isScheduled && $event->starts_at->isFuture()) data-movable @endif
+                                        data-calendar-chip="event" data-calendar-type="other" data-calendar-status="{{ $event->status }}" @if ($isScheduled && $event->starts_at->isFuture()) data-movable @endif
                                         data-title="{{ $event->title }}" data-subtitle="{{ $event->typeLabel() }}" data-status="{{ ucfirst($event->status) }}" data-scheduled="{{ $isScheduled ? '1' : '0' }}"
                                         data-date="{{ $event->starts_at->toDateString() }}" data-start="{{ $event->starts_at->format('H:i') }}" data-end="{{ $event->ends_at?->format('H:i') }}"
                                         data-when="{{ $event->starts_at->format('l, M j, Y g:i A') }}{{ $event->ends_at ? ' to '.$event->ends_at->format('g:i A') : '' }}"
@@ -119,7 +150,7 @@
                                 @endforeach
 
                                 @foreach ($day['leave'] as $leave)
-                                    <span class="calendar-event type-leave is-confirmed" title="{{ $leave->employee->full_name }}: {{ $leave->leave_type->label() }}">
+                                    <span class="calendar-event type-leave is-confirmed" data-calendar-type="leave" data-calendar-status="approved" title="{{ $leave->employee->full_name }}: {{ $leave->leave_type->label() }}">
                                         <span class="calendar-event-label">{{ $leave->employee->last_name }} (leave)</span>
                                     </span>
                                 @endforeach
@@ -128,6 +159,10 @@
                     @endforeach
                 @endforeach
             </div>
+        </section>
+        </div>
+
+        <x-calendar-day-panel />
         </div>
     </div>
 

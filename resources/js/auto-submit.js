@@ -10,9 +10,11 @@ $(function () {
         const $search = $(form).find('input[type="search"]');
         let timer = null;
 
-        $(form).on('change', 'select, input[type="checkbox"], input[type="date"], input[type="month"]', () => form.requestSubmit());
+        $(form).on('change', 'select, input[type="checkbox"], input[type="date"], input[data-datepicker], input[data-date-range], input[type="month"]', () => form.requestSubmit());
 
-        $search.on('input', () => {
+        // A search box with name suggestions (data-suggest-url) is not reloaded while typing, so its list can stay open;
+        // it sends the form when a suggestion is picked or Enter is pressed.
+        $search.not('[data-suggest-url]').on('input', () => {
             window.clearTimeout(timer);
             timer = window.setTimeout(() => form.requestSubmit(), typingPause);
         });

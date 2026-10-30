@@ -35,7 +35,8 @@ class RecruitmentController extends Controller
             'interview' => ['nullable', 'in:upcoming,finished,none'],
             'college' => ['nullable', 'integer'],
             'office' => ['nullable', 'integer'],
-            'applied_on' => ['nullable', 'date'],
+            'applied_from' => ['nullable', 'date'],
+            'applied_to' => ['nullable', 'date', 'after_or_equal:applied_from'],
             'sort' => ['nullable', 'in:name,position,date,status'],
             'dir' => ['nullable', 'in:asc,desc'],
         ]);
@@ -51,7 +52,8 @@ class RecruitmentController extends Controller
             })
             ->when($filters['college'] ?? null, fn ($builder, $college) => $builder->whereHas('jobTitle', fn ($titles) => $titles->where('college_id', $college)))
             ->when($filters['office'] ?? null, fn ($builder, $office) => $builder->whereHas('jobTitle', fn ($titles) => $titles->where('office_id', $office)))
-            ->when($filters['applied_on'] ?? null, fn ($builder, $date) => $builder->whereDate('applied_on', $date));
+            ->when($filters['applied_from'] ?? null, fn ($builder, $date) => $builder->whereDate('applied_on', '>=', $date))
+            ->when($filters['applied_to'] ?? null, fn ($builder, $date) => $builder->whereDate('applied_on', '<=', $date));
 
         $direction = ($filters['dir'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
 

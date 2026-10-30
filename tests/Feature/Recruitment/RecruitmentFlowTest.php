@@ -492,6 +492,18 @@ describe('the Recruitment page', function () {
         $this->get(route('recruitment.index', ['status' => 'cancelled']))->assertOk()->assertDontSee($this->applicant->applicantProfile->last_name);
     });
 
+    it('filters the applications by the date range they were filed in', function () {
+        $this->application->update(['applied_on' => '2026-05-10']);
+        $other = Application::factory()->create(['applied_on' => '2026-08-20']);
+        $filed = fn (array $range) => $this->actingAs($this->staff)->get(route('recruitment.index', $range))->viewData('applications')->pluck('id')->all();
+
+        expect($filed(['applied_from' => '2026-05-01', 'applied_to' => '2026-05-31']))->toBe([$this->application->id])
+            ->and($filed(['applied_from' => '2026-08-01']))->toBe([$other->id])
+            ->and($filed(['applied_to' => '2026-08-31']))->toContain($this->application->id, $other->id);
+
+        $this->get(route('recruitment.index', ['applied_from' => '2026-06-01', 'applied_to' => '2026-05-01']))->assertSessionHasErrors('applied_to');
+    });
+
     it('opens an application with the documents shown at once and the applicant information collapsible', function () {
         $this->application->documents()->create(['uuid' => (string) Str::uuid(), 'kind' => 'resume', 'original_name' => 'cv.pdf', 'mime_type' => 'application/pdf', 'size' => 4, 'sha256' => 'x', 'contents' => '%PDF']);
 

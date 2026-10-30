@@ -40,24 +40,31 @@
                 <h2 class="employee-form-section" id="resume-title">Resume</h2>
 
                 <h3 class="fs-6">Education</h3>
-                @foreach (range(0, 2) as $i)
-                    <div class="row g-2 mb-2">
-                        <div class="col-md-3"><x-field :name="'education['.$i.'][level]'" label="Level" placeholder="Bachelor, Master, Doctorate" /></div>
-                        <div class="col-md-4"><x-field :name="'education['.$i.'][school]'" label="School" :required="$i === 0" /></div>
-                        <div class="col-md-3"><x-field :name="'education['.$i.'][course]'" label="Course or Degree" /></div>
-                        <div class="col-md-2"><x-field :name="'education['.$i.'][year_graduated]'" label="Year Graduated" /></div>
-                    </div>
-                @endforeach
+                <div data-sortable-rows data-sortable-required="education[0][school]">
+                    @foreach (range(0, 2) as $i)
+                        <div class="row g-2 mb-2 sortable-row">
+                            <span class="sort-handle" title="Drag to reorder" aria-hidden="true">⋮⋮</span>
+                            <div class="col-md-3"><x-field :name="'education['.$i.'][level]'" label="Level" placeholder="Bachelor, Master, Doctorate" /></div>
+                            <div class="col-md-4"><x-field :name="'education['.$i.'][school]'" label="School" :required="$i === 0" /></div>
+                            <div class="col-md-3"><x-field :name="'education['.$i.'][course]'" label="Course or Degree" /></div>
+                            <div class="col-md-2"><x-field :name="'education['.$i.'][year_graduated]'" label="Year Graduated" /></div>
+                        </div>
+                    @endforeach
+                </div>
 
                 <h3 class="fs-6 mt-3">Work History</h3>
-                @foreach (range(0, 2) as $i)
-                    <div class="row g-2 mb-2">
-                        <div class="col-md-4"><x-field :name="'work_history['.$i.'][employer]'" label="Employer" /></div>
-                        <div class="col-md-4"><x-field :name="'work_history['.$i.'][position]'" label="Position" /></div>
-                        <div class="col-md-2"><x-field :name="'work_history['.$i.'][from]'" label="From" placeholder="2019-06" /></div>
-                        <div class="col-md-2"><x-field :name="'work_history['.$i.'][to]'" label="To" placeholder="2024-03 or Present" /></div>
-                    </div>
-                @endforeach
+                <div data-sortable-rows>
+                    @foreach (range(0, 2) as $i)
+                        <div class="row g-2 mb-2 sortable-row">
+                            <span class="sort-handle" title="Drag to reorder" aria-hidden="true">⋮⋮</span>
+                            <div class="col-md-4"><x-field :name="'work_history['.$i.'][employer]'" label="Employer" /></div>
+                            <div class="col-md-4"><x-field :name="'work_history['.$i.'][position]'" label="Position" /></div>
+                            <div class="col-md-2"><x-field :name="'work_history['.$i.'][from]'" label="From" placeholder="2019-06" /></div>
+                            <div class="col-md-2"><x-field :name="'work_history['.$i.'][to]'" label="To" placeholder="2024-03 or Present" /></div>
+                        </div>
+                    @endforeach
+                </div>
+                <p class="form-text mb-0">Drag the dots beside a row to put your most recent first.</p>
 
                 <div class="mt-3">
                     <label for="resume" class="form-label is-required">Resume file</label>
