@@ -167,6 +167,25 @@ describe('moving and changing the interview', function () {
             ->assertSeeInOrder(['data-accordion-open', 'Reschedule</div>'], false);
     });
 
+    it('shows the overlap warning on the calendar after a refused move from there', function () {
+        $day = now()->addDays(6)->toDateString();
+        Interview::factory()->create(['interviewer_id' => $this->staff->id, 'starts_at' => "{$day} 14:00:00", 'ends_at' => "{$day} 15:00:00"]);
+
+        $this->actingAs($this->admin)->from(route('calendar.index'))
+            ->patch(route('recruitment.interviews.reschedule', $this->interview), ['date' => $day, 'start_time' => '14:00', 'end_time' => '15:00', 'reason' => 'Room is taken'])
+            ->assertRedirect(route('calendar.index'));
+
+        $this->get(route('calendar.index'))->assertSee('That overlaps something, so nothing was changed.');
+
+        expect($this->interview->fresh()->starts_at->toDateString())->toBe($this->tomorrow->toDateString());
+    });
+
+    it('shows the reason that is missing on the calendar after a refused move from there', function () {
+        $this->actingAs($this->admin)->from(route('calendar.index'))->followingRedirects()
+            ->patch(route('recruitment.interviews.reschedule', $this->interview), ['date' => now()->addDays(5)->toDateString(), 'start_time' => '14:00', 'end_time' => '15:00', 'reason' => ''])
+            ->assertSee('Give a reason for moving the interview.');
+    });
+
     it('cannot move a finished interview', function () {
         $this->interview->update(['status' => InterviewStatus::Completed]);
 

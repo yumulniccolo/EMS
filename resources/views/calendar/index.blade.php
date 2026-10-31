@@ -34,6 +34,13 @@
             </div>
         @endif
 
+        @if ($errors->any())
+            <div class="alert alert-danger mb-0" role="alert">
+                <strong>Nothing was changed.</strong>
+                <ul class="mb-0">@foreach ($errors->all() as $message) <li>{{ $message }}</li> @endforeach</ul>
+            </div>
+        @endif
+
         <div class="card employees-filters">
             <div class="row g-3 align-items-start">
                 <fieldset class="col-lg-5">

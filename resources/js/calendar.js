@@ -63,7 +63,7 @@ function openDetails($root, chip) {
         .find('[name="end_time"]').val(chip.end);
     // An applicant's request is answered without a reason; HR gives one only when it moves the interview for its own reasons.
     const answeringRequest = chip.requested !== '';
-    $modal.find('[data-form="reschedule"] [name="reason"]').prop('required', !answeringRequest);
+    $modal.find('[data-form="reschedule"] [name="reason"]').val('').prop('required', !answeringRequest);
     $modal.find('[data-form="reschedule"] label[for="rs-reason"]').toggleClass('is-required', !answeringRequest);
     $modal.find('[data-reschedule-hint]').toggleClass('d-none', !answeringRequest);
     $modal.find('[data-form="interviewer"]').attr('action', chip.interviewerUrl).find('select').val(chip.interviewerId);
@@ -246,12 +246,41 @@ function initAddEvent($root) {
     });
 }
 
+// Changing Start moves End by the same amount, so the interview keeps its length unless HR edits End by hand.
+function minutesOf(time) {
+    const [hours, minutes] = time.split(':').map(Number);
+
+    return hours * 60 + minutes;
+}
+
+function keepLengthOnStartChange() {
+    $(document).on('focus', '[data-form="reschedule"] [name="start_time"], [data-form="move"] [name="start_time"]', function () {
+        $(this).data('previous', this.value);
+    });
+
+    $(document).on('change', '[data-form="reschedule"] [name="start_time"], [data-form="move"] [name="start_time"]', function () {
+        const $end = $(this).closest('form').find('[name="end_time"]');
+        const previous = $(this).data('previous');
+
+        if (!this.value || !previous || !$end.val()) {
+            return;
+        }
+
+        const shifted = Math.max(0, Math.min(23 * 60 + 59, minutesOf($end.val()) + minutesOf(this.value) - minutesOf(previous)));
+
+        $end.val(`${String(Math.floor(shifted / 60)).padStart(2, '0')}:${String(shifted % 60).padStart(2, '0')}`);
+        $(this).data('previous', this.value);
+    });
+}
+
 $(function () {
     const $root = $('[data-page="calendar"]');
 
     if (!$root.length) {
         return;
     }
+
+    keepLengthOnStartChange();
 
     $root.on('click', '[data-calendar-chip]', function () {
         openDetails($root, chipData($(this)));
