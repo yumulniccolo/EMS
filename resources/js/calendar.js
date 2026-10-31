@@ -110,19 +110,84 @@ function openMoveModal(chip, date) {
     window.setTimeout(() => $modal.find('[name="reason"]').trigger('focus'), 300);
 }
 
+// jQuery UI's Draggable listens for mouse events only. On a touch screen each finger event on a movable chip is replayed as
+// the matching mouse event, so the same drag works on a phone or tablet. A tap without moving still opens the chip.
+function bridgeTouchToMouse(chip) {
+    const replay = (touchEvent, mouseType) => {
+        const touch = touchEvent.changedTouches[0];
+
+        chip.dispatchEvent(new MouseEvent(mouseType, {
+            bubbles: true,
+            cancelable: true,
+            view: window,
+            button: 0,
+            buttons: mouseType === 'mouseup' ? 0 : 1,
+            clientX: touch.clientX,
+            clientY: touch.clientY,
+            screenX: touch.screenX,
+            screenY: touch.screenY,
+        }));
+    };
+    let isDragging = false;
+
+    chip.addEventListener('touchstart', (event) => {
+        if (event.touches.length > 1) {
+            return;
+        }
+
+        isDragging = false;
+        replay(event, 'mousemove');
+        replay(event, 'mousedown');
+    }, { passive: true });
+
+    chip.addEventListener('touchmove', (event) => {
+        isDragging = true;
+        event.preventDefault();
+        replay(event, 'mousemove');
+    }, { passive: false });
+
+    chip.addEventListener('touchend', (event) => {
+        replay(event, 'mouseup');
+
+        // The browser follows a drag with a click on the chip; only a plain tap should open it.
+        if (isDragging) {
+            event.preventDefault();
+        }
+    }, { passive: false });
+}
+
 function initDragAndDrop($root) {
     const today = $root.attr('data-today');
 
     $root.find('[data-calendar-chip][data-movable]').each(function () {
         $(this).draggable({
-            helper: 'clone',
+            // The copy that follows the pointer keeps the chip's own size and look, because it is moved out of the grid.
+            helper: function () {
+                const $chip = $(this);
+
+                return $chip.clone().addClass('calendar-drag-helper').css({ width: $chip.outerWidth(), height: $chip.outerHeight() });
+            },
             appendTo: 'body',
+            cursor: 'grabbing',
+            cursorAt: { left: 24, top: 12 },
             revert: 'invalid',
+            revertDuration: 150,
+            scroll: true,
+            scrollSensitivity: 60,
             zIndex: 1100,
-            distance: 6,
-            start: () => $root.addClass('is-dragging'),
-            stop: () => $root.removeClass('is-dragging'),
+            distance: 4,
+            start: function () {
+                $root.addClass('is-dragging');
+                $(this).addClass('is-drag-origin');
+            },
+            stop: function () {
+                $root.removeClass('is-dragging');
+                $(this).removeClass('is-drag-origin');
+                $root.find('.is-drop-target').removeClass('is-drop-target');
+            },
         });
+
+        bridgeTouchToMouse(this);
     });
 
     $root.find('[data-calendar-day]').each(function () {
@@ -137,8 +202,11 @@ function initDragAndDrop($root) {
         $day.droppable({
             accept: '[data-calendar-chip][data-movable]',
             tolerance: 'pointer',
-            classes: { 'ui-droppable-hover': 'is-selected' },
+            over: () => $day.addClass('is-drop-target'),
+            out: () => $day.removeClass('is-drop-target'),
             drop: (event, ui) => {
+                $day.removeClass('is-drop-target');
+
                 const chip = chipData(ui.draggable);
 
                 if (chip.date === date) {

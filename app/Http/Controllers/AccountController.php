@@ -39,7 +39,7 @@ class AccountController extends Controller
                 ->when($filters['q'] ?? null, fn ($query, $term) => $query->where(fn ($match) => $match->where('name', 'like', "%{$term}%")->orWhere('email', 'like', "%{$term}%")))
                 ->when($filters['role'] ?? null, fn ($query, $role) => $query->where('role', $role))
                 ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('is_active', $status === 'active'))
-                ->orderBy('name')->get(),
+                ->orderBy('name')->paginate(15)->withQueryString(),
             'employeesWithoutAccount' => Employee::query()->whereDoesntHave('user')->orderBy('last_name')->orderBy('first_name')->get(),
             'roles' => Role::cases(),
         ]);

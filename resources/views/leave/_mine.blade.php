@@ -50,7 +50,7 @@
                     </table>
                 </div>
                 @if ($employee->employment_type === \App\Enums\EmploymentType::PartTime)
-                    <p class="form-text mb-0 mt-2">At {{ $employee->weekly_hours }} hours a week you earn {{ rtrim(rtrim(number_format($employee->leaveCreditShare() * 100, 1), '0'), '.') }}% of the full-time vacation and sick leave.</p>
+                    <p class="form-text mb-0 mt-3">At {{ $employee->weekly_hours }} hours a week you earn {{ rtrim(rtrim(number_format($employee->leaveCreditShare() * 100, 1), '0'), '.') }}% of the full-time vacation and sick leave.</p>
                 @endif
             @endif
         </section>
@@ -66,7 +66,7 @@
                     <div class="col-12"><x-field name="reason" label="Reason (optional)" /></div>
                     <div class="col-12 d-flex justify-content-end"><button type="submit" class="btn btn-primary">Send to HR Admin</button></div>
                 </form>
-                <p class="form-text mb-0 mt-2">Weekends are not counted for most leaves. Sick and emergency leave can start up to 30 days ago. A request cannot use more than the credits you have left.</p>
+                <p class="form-text mb-0 mt-3">Weekends are not counted for most leaves. Sick and emergency leave can start up to 30 days ago. A request cannot use more than the credits you have left.</p>
             </section>
         @endif
 
@@ -90,7 +90,8 @@
                             @endif
                         </div>
                         @if ($leaveRequest->status === \App\Enums\LeaveStatus::Pending)
-                            <form method="post" action="{{ route($cancelRoute, $leaveRequest) }}">
+                            <form method="post" action="{{ route($cancelRoute, $leaveRequest) }}" data-confirm-title="Cancel leave request"
+                                data-confirm="Cancel this leave request? This cannot be undone." data-confirm-button="Cancel Request" data-confirm-cancel="Keep Request">
                                 @csrf
                                 <button type="submit" class="btn btn-sm btn-outline-danger">Cancel Request</button>
                             </form>

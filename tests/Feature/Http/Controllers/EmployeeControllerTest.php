@@ -92,6 +92,29 @@ describe('the list', function () {
     });
 });
 
+describe('the name suggestions for the search boxes', function () {
+    it('suggests current employees that match the term, as "Last, First (number)"', function () {
+        $match = Employee::factory()->create(['last_name' => 'Zamoranos', 'first_name' => 'Lia']);
+        Employee::factory()->create(['last_name' => 'Unrelated']);
+        Employee::factory()->create(['last_name' => 'Zamoraville', 'status' => EmployeeStatus::Resigned]);
+
+        $this->actingAs(hrStaff())->getJson(route('employees.suggest', ['term' => 'Zamora']))
+            ->assertOk()
+            ->assertExactJson([['label' => "Zamoranos, Lia ({$match->employee_no})", 'value' => 'Zamoranos, Lia']]);
+    });
+
+    it('answers nothing for a term shorter than two letters', function () {
+        Employee::factory()->create(['last_name' => 'Anderson']);
+
+        $this->actingAs(hrStaff())->getJson(route('employees.suggest', ['term' => 'A']))->assertOk()->assertExactJson([]);
+    });
+
+    it('is closed to employees and guests', function () {
+        $this->getJson(route('employees.suggest', ['term' => 'Ander']))->assertUnauthorized();
+        $this->actingAs(employeeUser())->getJson(route('employees.suggest', ['term' => 'Ander']))->assertForbidden();
+    });
+});
+
 describe('adding an employee', function () {
     it('creates the next employee number, the official email, and the college from the job title', function () {
         Employee::factory()->create(['employee_no' => '26-00041']);
@@ -211,12 +234,13 @@ describe('the profile', function () {
         $this->actingAs(hrAdmin())->get(route('employees.show', $employee))->assertSee('Vacation Leave')->assertSee('7.5')->assertDontSee('Special Privilege Leave');
     });
 
-    it('shows the HR Admin the transfer, step, archive, and reveal controls but not HR Staff', function () {
+    it('shows the HR Admin the transfer, step, and archive controls and the government ID reveal control but not HR Staff', function () {
         $employee = Employee::factory()->create();
 
         $this->actingAs(hrAdmin())->get(route('employees.show', $employee))
             ->assertSee('Edit the contract')
             ->assertSee('Archive Employee')
+            ->assertSee(route('government-ids.reveal', [$employee, 'tin']), escape: false)
             ->assertSee('Reveal');
 
         $this->actingAs(hrStaff())->get(route('employees.show', $employee))

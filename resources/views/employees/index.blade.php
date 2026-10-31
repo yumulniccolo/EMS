@@ -59,7 +59,7 @@
                     <label for="employee-search" class="visually-hidden">Search employees</label>
                     <div class="search-field">
                         <x-icon name="search" />
-                        <input type="search" class="form-control" id="employee-search" name="q" value="{{ $filters['q'] ?? '' }}"
+                        <input type="search" class="form-control" id="employee-search" name="q" value="{{ $filters['q'] ?? '' }}" data-suggest-url="{{ route('employees.suggest') }}"
                             placeholder="Search employees..." autocomplete="off">
                     </div>
                 </div>
@@ -109,7 +109,7 @@
 
         <div class="card overflow-hidden">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 employees-table">
+                <table class="table align-middle mb-0 employees-table">
                     <thead>
                         <tr>
                             <th scope="col" aria-sort="{{ $ariaSort('number') }}"><a class="sort-button" href="{{ $sortLink('number') }}">Employee ID</a></th>

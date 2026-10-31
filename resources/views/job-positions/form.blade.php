@@ -66,9 +66,19 @@
             </section>
 
             <div class="d-flex justify-content-end gap-2">
+                @if ($jobTitle->isOpen())
+                    <button type="submit" form="close-posting-form" class="btn btn-outline-secondary me-auto">Close Posting</button>
+                @endif
                 <a class="btn btn-outline-secondary" href="{{ route('job-positions.index') }}">Cancel</a>
                 <button type="submit" class="btn btn-primary">Save Posting</button>
             </div>
         </form>
+
+        @if ($jobTitle->isOpen())
+            <form method="post" action="{{ route('job-positions.close', $jobTitle) }}" id="close-posting-form" class="d-none" data-confirm-title="Close posting"
+                data-confirm="Close this posting? It is taken off the Careers website." data-confirm-button="Close Posting">
+                @csrf
+            </form>
+        @endif
     </div>
 @endsection

@@ -39,7 +39,7 @@
                 @elseif (! $isOpen)
                     <button type="button" class="btn btn-primary" disabled>Applications closed</button>
                 @elseif ($canApplyHere)
-                    <a class="btn btn-primary" href="{{ $applyUrl }}">Apply Now</a>
+                    <a class="btn btn-primary" href="{{ $applyUrl }}" @guest data-terms-gate @endguest>Apply Now</a>
                 @endif
             </div>
         </div>

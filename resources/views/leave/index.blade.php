@@ -40,7 +40,7 @@
                     <label for="leave-search" class="visually-hidden">Search employees</label>
                     <div class="search-field">
                         <x-icon name="search" />
-                        <input type="search" class="form-control" id="leave-search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Search employees..." autocomplete="off">
+                        <input type="search" class="form-control" id="leave-search" name="q" value="{{ $filters['q'] ?? '' }}" data-suggest-url="{{ route('employees.suggest') }}" placeholder="Search employees..." autocomplete="off">
                     </div>
                 </div>
                 <div class="col-md-6 col-xl-3">
@@ -116,15 +116,16 @@
                                         @elseif ($leaveRequest->employee_id === $ownEmployeeId)
                                             <small class="text-body-secondary">Your own request: another HR Admin decides it.</small>
                                         @else
-                                            <div class="d-flex gap-2 flex-wrap">
+                                            <div class="d-flex align-items-center gap-2 flex-wrap">
                                                 <form method="post" action="{{ route('leave.approve', $leaveRequest) }}">
                                                     @csrf
                                                     <button type="submit" class="btn btn-sm btn-primary">Approve</button>
                                                 </form>
-                                                <form method="post" action="{{ route('leave.reject', $leaveRequest) }}" class="d-flex gap-2">
+                                                <form method="post" action="{{ route('leave.reject', $leaveRequest) }}" class="d-flex align-items-center gap-2" data-confirm-title="Reject leave request"
+                                                    data-confirm="Reject this leave request? The employee is told the reason you gave." data-confirm-button="Reject">
                                                     @csrf
                                                     <label class="visually-hidden" for="reject-{{ $leaveRequest->id }}">Reason for rejecting this request</label>
-                                                    <input type="text" class="form-control form-control-sm" id="reject-{{ $leaveRequest->id }}" name="decision_note" placeholder="Reason to reject" required>
+                                                    <input type="text" class="form-control form-control-sm leave-reject-note" id="reject-{{ $leaveRequest->id }}" name="decision_note" placeholder="Reason to reject" required>
                                                     <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
                                                 </form>
                                             </div>
@@ -140,7 +141,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="6" class="employees-empty text-center"><strong>No leave requests</strong> Nothing matches these filters.</td></tr>
+                            <tr><td colspan="6" class="employees-empty text-start text-sm-center"><strong>No leave requests</strong> Nothing matches these filters.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

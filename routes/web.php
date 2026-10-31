@@ -69,6 +69,7 @@ Route::middleware(['staff', 'role:hr_admin,hr_staff'])->group(function () {
     // Employees come from the database. Everyone in HR reads, adds, and edits them; the actions that change an
     // assignment, archive a record, or reveal a government ID are limited to the HR Admin by EmployeePolicy.
     Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
+    Route::get('/employees/suggest', [EmployeeController::class, 'suggest'])->name('employees.suggest');
     Route::get('/employees/create', [EmployeeController::class, 'create'])->name('employees.create');
     Route::post('/employees', [EmployeeController::class, 'store'])->name('employees.store');
 

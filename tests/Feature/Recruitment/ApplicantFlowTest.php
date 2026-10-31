@@ -4,6 +4,7 @@ use App\Enums\ApplicationStatus;
 use App\Enums\Role;
 use App\Models\Application;
 use App\Models\College;
+use App\Models\Interview;
 use App\Models\JobTitle;
 use App\Models\StoredDocument;
 use App\Models\User;
@@ -74,6 +75,37 @@ describe('the public careers website', function () {
     });
 });
 
+describe('accepting the terms before creating an account', function () {
+    it('asks for the terms in a window from the careers Create Account and Apply Now buttons', function () {
+        $position = openPosition();
+
+        $this->get(route('careers.index'))
+            ->assertOk()
+            ->assertSee('id="applicant-terms-modal"', escape: false)
+            ->assertSee('href="'.route('applicant.register').'" data-terms-gate', escape: false)
+            ->assertSee('href="'.route('applicant.register', ['position' => $position->id]).'" aria-label="Apply for '.$position->title.'"  data-terms-gate', escape: false);
+    });
+
+    it('opens Create Account without the terms on the form, keeping the accepted terms and the position', function () {
+        $position = openPosition();
+
+        $this->get(route('applicant.register', ['position' => $position->id, 'terms' => 'accepted']))
+            ->assertOk()
+            ->assertSee('<input type="hidden" name="terms" value="1" data-terms-input>', escape: false)
+            ->assertSee('<input type="hidden" name="position" value="'.$position->id.'">', escape: false)
+            ->assertDontSee('data-terms-required', escape: false)
+            ->assertDontSee('id="terms"', escape: false);
+    });
+
+    it('asks for the terms on Create Account itself when they were not accepted yet', function () {
+        $this->get(route('applicant.register'))
+            ->assertOk()
+            ->assertSee('<input type="hidden" name="terms" value="" data-terms-input>', escape: false)
+            ->assertSee('data-terms-required', escape: false)
+            ->assertSee('Agree and Continue');
+    });
+});
+
 describe('creating an applicant account', function () {
     it('takes a separate first, middle, and last name, signs in, and asks for the profile', function () {
         $this->post(route('applicant.register.store'), [
@@ -137,6 +169,36 @@ describe('the one-time profile', function () {
     });
 });
 
+describe('the applicant dashboard', function () {
+    it('shows the summary cards, an empty applications card with Browse Open Positions, and the quick links', function () {
+        $this->actingAs(applicantUser())->get(route('applicant.dashboard'))
+            ->assertOk()
+            ->assertSeeInOrder(['Applications', 'Latest Status', 'Next Step', 'Your applications', 'Upcoming demo interviews and interviews', 'Quick links'])
+            ->assertSee('No applications submitted yet')
+            ->assertSee('You have not applied for a position yet.')
+            ->assertSee('Browse Open Positions')
+            ->assertSee('No demo interview or interview is scheduled yet.')
+            ->assertSee(route('applicant.profile'), escape: false)
+            ->assertSee(route('applicant.calendar'), escape: false)
+            ->assertSee(route('applicant.positions'), escape: false)
+            ->assertSee(route('applicant.applications'), escape: false);
+    });
+
+    it('shows the latest application, its status, and the scheduled demo interview as the next step', function () {
+        $user = applicantUser();
+        $application = Application::factory()->create(['user_id' => $user->id, 'job_title_id' => openPosition()->id, 'status' => ApplicationStatus::DemoInterview]);
+        Interview::factory()->create(['application_id' => $application->id, 'starts_at' => now()->addDays(3)->setTime(9, 0), 'ends_at' => now()->addDays(3)->setTime(10, 0)]);
+
+        $this->actingAs($user)->get(route('applicant.dashboard'))
+            ->assertOk()
+            ->assertSee('1 in progress')
+            ->assertSee('Instructor I')
+            ->assertSee('Demo interview')
+            ->assertSee(now()->addDays(3)->format('l, M j, Y'))
+            ->assertDontSee('You have not applied for a position yet.');
+    });
+});
+
 describe('applying', function () {
     it('files the application with the resume stored in the database, the position automatic, and tells HR', function () {
         $hr = hrStaff();
@@ -156,6 +218,49 @@ describe('applying', function () {
             ->and(StoredDocument::query()->where('kind', 'portfolio')->count())->toBe(1)
             ->and($application->events->first()->type)->toBe('applied')
             ->and($hr->notifications()->count())->toBe(1);
+    });
+
+    it('offers Save Draft on the form, keyed to the applicant and position, beside the unchanged Submit', function () {
+        $position = openPosition();
+        $user = applicantUser();
+
+        $this->actingAs($user)->get(route('applicant.apply', ['position' => $position->id]))
+            ->assertOk()
+            ->assertSee('data-save-draft', escape: false)
+            ->assertSee('data-draft-owner="'.$user->id.'" data-draft-position="'.$position->id.'"', escape: false)
+            ->assertSeeInOrder(['Save Draft', 'Submit Application']);
+    });
+
+    it('lists submitted applications as clickable rows with a Submitted badge, and a template for draft rows', function () {
+        $position = openPosition();
+        $user = applicantUser();
+        $this->actingAs($user)->post(route('applicant.applications.store'), applicationInput($position));
+        $application = Application::query()->sole();
+
+        $this->get(route('applicant.applications'))
+            ->assertOk()
+            ->assertSee('data-row-href="'.route('applicant.applications.show', $application).'"', escape: false)
+            ->assertSee('data-application-open-position="'.$position->id.'"', escape: false)
+            ->assertSee('Submitted')
+            ->assertSee('data-draft-row-template', escape: false);
+    });
+
+    it('shows a submitted application as a read-only summary of what was sent', function () {
+        $position = openPosition();
+        $user = applicantUser();
+        $this->actingAs($user)->post(route('applicant.applications.store'), applicationInput($position, ['cover_note' => 'Looking forward to it.']));
+        $application = Application::query()->sole();
+
+        $this->get(route('applicant.applications.show', $application))
+            ->assertOk()
+            ->assertSee('Your application')
+            ->assertSee('PLP')
+            ->assertSee('Sample School')
+            ->assertSee('resume.pdf')
+            ->assertSee('https://example.test/portfolio')
+            ->assertSee('Looking forward to it.')
+            ->assertSee('data-submitted-position="'.$position->id.'"', escape: false)
+            ->assertDontSee('data-save-draft', escape: false);
     });
 
     it('requires a resume file and an education entry, and refuses a second application for the same position', function () {

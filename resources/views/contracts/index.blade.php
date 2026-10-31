@@ -12,10 +12,10 @@
         <div class="card overflow-hidden">
             <div class="table-responsive">
                 <table class="table align-middle mb-0 employees-table">
-                    <thead><tr><th scope="col">Employee</th><th scope="col">Employment</th><th scope="col">Contract ends</th><th scope="col">Offer</th><th scope="col"><span class="visually-hidden">Decide</span></th></tr></thead>
+                    <thead><tr><th scope="col">Employee</th><th scope="col">Employment</th><th scope="col">Contract ends</th><th scope="col">Offer</th></tr></thead>
                     <tbody>
                         @forelse ($employees as $employee)
-                            <tr @class(['table-warning' => $employee->contract_ends_on->isPast()])>
+                            <tr @class(['employee-row', 'table-warning' => $employee->contract_ends_on->isPast()]) data-row-href="{{ route('employees.show', $employee) }}#contract-title">
                                 <td>
                                     <a class="text-reset fw-medium" href="{{ route('employees.show', $employee) }}">{{ $employee->last_name }}, {{ $employee->first_name }}</a>
                                     <small class="d-block text-body-secondary">{{ $employee->jobTitle->title }} · {{ $employee->college?->code ?? $employee->office?->code }}</small>
@@ -23,15 +23,17 @@
                                 <td>{{ $employee->employment_type->label() }}, {{ $employee->weekly_hours }} h/week</td>
                                 <td class="text-nowrap">{{ $employee->contract_ends_on->format('M j, Y') }} @if ($employee->contract_ends_on->isPast()) <span class="badge text-bg-danger">Ended</span> @endif</td>
                                 <td>{{ $employee->offers->isNotEmpty() ? 'Waiting for the employee' : 'None sent' }}</td>
-                                <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="{{ route('employees.show', $employee) }}#contract-title">Decide</a></td>
                             </tr>
                         @empty
-                            <tr><td colspan="5" class="employees-empty text-center"><strong>No contracts need a decision</strong></td></tr>
+                            <tr><td colspan="4" class="employees-empty text-start text-sm-center"><strong>No contracts need a decision</strong> None end within 60 days.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            <div class="employees-footer">{{ $employees->links() }}</div>
+            <div class="employees-footer d-flex justify-content-between align-items-center gap-3 flex-wrap">
+                <span>Showing {{ $employees->firstItem() ?? 0 }} to {{ $employees->lastItem() ?? 0 }} of {{ $employees->total() }} contracts</span>
+                {{ $employees->links() }}
+            </div>
         </div>
     </div>
 @endsection

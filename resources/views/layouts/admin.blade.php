@@ -12,8 +12,11 @@
         @stack('styles')
     </head>
     <body>
-        {{-- data-server-user: the signed-in user is printed by the server, so the script must not overwrite it with sample data. --}}
-        <div class="app-shell" data-app-shell data-server-user>
+        {{--
+            data-server-user: the signed-in user is printed by the server, so the script must not overwrite it with sample data.
+            data-admin-ui: the HR pages' jQuery UI widgets apply inside it (resources/js/admin-widgets.js).
+        --}}
+        <div class="app-shell" data-app-shell data-server-user data-admin-ui>
             <x-app-header />
 
             <x-app-sidebar />

@@ -1,9 +1,15 @@
 import './theme.js';
 import './bootstrap.js';
 import './jquery-ui.js';
+import './ui-widgets.js';
 import './auto-submit.js';
 import './password-toggle.js';
+import './issued-password.js';
+import './applicant-terms.js';
+import './profile-sections.js';
+import './application-drafts.js';
 import './app-shell.js';
 import './employee-report.js';
 import './calendar.js';
+import './admin-widgets.js';
 import './page-behaviors.js';

@@ -44,8 +44,10 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-3 col-xl-1"><label class="visually-hidden" for="audit-from">From</label><input type="date" class="form-control" id="audit-from" name="from" value="{{ $filters['from'] ?? '' }}" title="From"></div>
-                <div class="col-md-3 col-xl-2"><label class="visually-hidden" for="audit-to">To</label><input type="date" class="form-control" id="audit-to" name="to" value="{{ $filters['to'] ?? '' }}" title="To"></div>
+                <div class="col-md-6 col-xl-3">
+                    <label class="visually-hidden" for="audit-dates">Date range</label>
+                    <x-date-range id="audit-dates" :from="$filters['from'] ?? null" :to="$filters['to'] ?? null" placeholder="Date range" />
+                </div>
             </div>
             <div class="d-flex justify-content-end mt-3"><a class="btn btn-sm btn-outline-secondary" href="{{ route('audit.index') }}">Clear Filters</a></div>
         </form>

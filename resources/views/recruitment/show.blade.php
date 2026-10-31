@@ -52,29 +52,35 @@
         {{-- Documents: visible at once, as HR reviews them before deciding. --}}
         <section class="card employee-form-card" aria-labelledby="documents-title">
             <h2 class="fs-5" id="documents-title">Documents</h2>
+            {{-- Each [data-accordion] group opens one panel at a time (jQuery UI Accordion; resources/js/admin-widgets.js). --}}
+            <div data-accordion>
             @forelse ($application->documents as $document)
-                <details class="mb-2">
-                    <summary class="fw-medium">
+                <div class="mb-2">
+                    <div class="fw-medium" data-accordion-header>
                         {{ ucfirst($document->kind) }}: {{ $document->original_name }}
                         <small class="text-body-secondary">({{ $document->humanSize() }})</small>
-                    </summary>
-                    <div class="mt-2 d-grid gap-2">
+                    </div>
+                    <div><div class="mt-2 d-grid gap-2">
                         <div class="d-flex gap-2 flex-wrap">
                             <a class="btn btn-sm btn-outline-primary" href="{{ route('documents.show', $document->uuid) }}" target="_blank" rel="noopener">Open in new tab</a>
                             <a class="btn btn-sm btn-outline-secondary" href="{{ route('documents.show', [$document->uuid, 'download' => 1]) }}">Download</a>
                         </div>
                         @if ($document->mime_type === 'application/pdf')
-                            <iframe class="w-100 border rounded" style="height: 36rem" src="{{ route('documents.show', $document->uuid) }}" title="{{ ucfirst($document->kind) }} of {{ $profile->full_name }}"></iframe>
+                            {{-- Its bottom edge can be dragged to make the preview taller or shorter (jQuery UI Resizable). --}}
+                            <div class="document-viewer border rounded" data-resizable-viewer>
+                                <iframe src="{{ route('documents.show', $document->uuid) }}" title="{{ ucfirst($document->kind) }} of {{ $profile->full_name }}"></iframe>
+                            </div>
                         @elseif ($document->isViewable())
                             <img class="img-fluid border rounded" src="{{ route('documents.show', $document->uuid) }}" alt="{{ ucfirst($document->kind) }} of {{ $profile->full_name }}">
                         @else
                             <p class="small text-body-secondary mb-0">This file type cannot be previewed here. Download it to read it.</p>
                         @endif
-                    </div>
-                </details>
+                    </div></div>
+                </div>
             @empty
                 <p class="text-body-secondary mb-0">No documents were attached.</p>
             @endforelse
+            </div>
             @if ($application->portfolio_url)
                 <p class="mb-0 mt-2">Portfolio link: <a href="{{ $application->portfolio_url }}" target="_blank" rel="noopener noreferrer">{{ $application->portfolio_url }}</a></p>
             @endif
@@ -84,6 +90,7 @@
         {{-- The next step --}}
         <section class="card employee-form-card" aria-labelledby="next-title">
             <h2 class="fs-5" id="next-title">Next step</h2>
+            <div data-accordion>
 
             @if ($interview?->reschedule_requested_at)
                 <div class="alert alert-warning">
@@ -127,9 +134,9 @@
                     <dt class="col-sm-3">Interviewer</dt><dd class="col-sm-9">{{ $interview->interviewer->name }} <small class="text-body-secondary">(set by {{ $interview->scheduler->name }})</small></dd>
                 </dl>
 
-                <details class="mb-2" {{ (session('conflicts')['form'] ?? null) === 'reschedule' ? 'open' : '' }}>
-                    <summary class="fw-medium">Reschedule</summary>
-                    <form method="post" action="{{ route('recruitment.interviews.reschedule', $interview) }}" class="row g-3 mt-1" novalidate>
+                <div class="mb-2">
+                    <div class="fw-medium" data-accordion-header @if ((session('conflicts')['form'] ?? null) === 'reschedule') data-accordion-open @endif>Reschedule</div>
+                    <div><form method="post" action="{{ route('recruitment.interviews.reschedule', $interview) }}" class="row g-3 mt-1" novalidate>
                         @csrf
                         @method('PATCH')
                         <div class="col-md-3"><x-field name="date" type="date" label="New date" :value="$interview->starts_at->toDateString()" :min="now()->toDateString()" required /></div>
@@ -144,28 +151,29 @@
                         </div>
                         <div class="col-12">@include('recruitment._conflicts', ['suffix' => 'reschedule'])</div>
                         <div class="col-12 d-flex justify-content-end"><button type="submit" class="btn btn-outline-primary">Move Interview</button></div>
-                    </form>
-                </details>
+                    </form></div>
+                </div>
 
-                <details class="mb-2" {{ (session('conflicts')['form'] ?? null) === 'interviewer' ? 'open' : '' }}>
-                    <summary class="fw-medium">Change interviewer</summary>
-                    <form method="post" action="{{ route('recruitment.interviews.interviewer', $interview) }}" class="row g-3 mt-1" novalidate>
+                <div class="mb-2">
+                    <div class="fw-medium" data-accordion-header @if ((session('conflicts')['form'] ?? null) === 'interviewer') data-accordion-open @endif>Change interviewer</div>
+                    <div><form method="post" action="{{ route('recruitment.interviews.interviewer', $interview) }}" class="row g-3 mt-1" novalidate>
                         @csrf
                         @method('PATCH')
                         <div class="col-md-6"><x-select-field name="interviewer_id" label="New interviewer" :options="$interviewers->pluck('name', 'id')->all()" :value="$interview->interviewer_id" required /></div>
                         <div class="col-12">@include('recruitment._conflicts', ['suffix' => 'interviewer'])</div>
                         <div class="col-12 d-flex justify-content-end"><button type="submit" class="btn btn-outline-primary">Change Interviewer</button></div>
-                    </form>
-                </details>
+                    </form></div>
+                </div>
 
-                <details class="mb-2">
-                    <summary class="fw-medium">Cancel the interview</summary>
-                    <form method="post" action="{{ route('recruitment.interviews.cancel', $interview) }}" class="d-flex gap-2 mt-1">
+                <div class="mb-2">
+                    <div class="fw-medium" data-accordion-header>Cancel the interview</div>
+                    <div><form method="post" action="{{ route('recruitment.interviews.cancel', $interview) }}" class="d-flex gap-2 mt-1" data-confirm-title="Cancel interview"
+                        data-confirm="Cancel this interview? The applicant is told the reason you gave." data-confirm-button="Cancel Interview" data-confirm-cancel="Keep Interview">
                         @csrf
                         <input type="text" class="form-control" name="reason" placeholder="Reason (the applicant is told)" required aria-label="Reason for cancelling the interview">
                         <button type="submit" class="btn btn-outline-danger text-nowrap">Cancel Interview</button>
-                    </form>
-                </details>
+                    </form></div>
+                </div>
 
                 @if ($interview->starts_at->isPast())
                     <form method="post" action="{{ route('recruitment.interviews.complete', $interview) }}" class="d-flex gap-2 mt-2">
@@ -206,10 +214,10 @@
                 @elseif ($pendingOffer)
                     <p class="mb-2">Waiting for {{ $profile->first_name }} to accept or decline the offer sent {{ $pendingOffer->created_at->diffForHumans() }}.</p>
                     @if ($canOffer)
-                        <details>
-                            <summary class="fw-medium">Edit the offer</summary>
-                            <div class="mt-2">@include('recruitment._offer-form', ['editOffer' => $pendingOffer])</div>
-                        </details>
+                        <div>
+                            <div class="fw-medium" data-accordion-header>Edit the offer</div>
+                            <div><div class="mt-2">@include('recruitment._offer-form', ['editOffer' => $pendingOffer])</div></div>
+                        </div>
                     @endif
                 @endif
             @endif
@@ -219,14 +227,16 @@
             @endif
 
             <hr>
-            <details>
-                <summary class="fw-medium text-danger">Reject this application</summary>
-                <form method="post" action="{{ route('recruitment.reject', $application) }}" class="d-flex gap-2 mt-2">
+            <div>
+                <div class="fw-medium text-danger" data-accordion-header>Reject this application</div>
+                <div><form method="post" action="{{ route('recruitment.reject', $application) }}" class="d-flex gap-2 mt-2" data-confirm-title="Reject application"
+                    data-confirm="Reject this application? The applicant is told the reason you gave." data-confirm-button="Reject">
                     @csrf
                     <input type="text" class="form-control" name="reason" placeholder="Reason (the applicant is told)" required aria-label="Reason for rejecting">
                     <button type="submit" class="btn btn-outline-danger text-nowrap">Reject</button>
-                </form>
-            </details>
+                </form></div>
+            </div>
+            </div>
         </section>
         @endunless
 
@@ -241,10 +251,11 @@
             </section>
         @endif
 
+        <div class="d-grid gap-4" data-accordion>
         <section class="card employee-form-card">
-            <details>
-                <summary class="fs-5 fw-semibold">Applicant information</summary>
-                <dl class="row mt-3 mb-0">
+            <div>
+                <div class="fs-5 fw-semibold" data-accordion-header>Applicant information</div>
+                <div><dl class="row mt-3 mb-0">
                     <dt class="col-sm-3">Name</dt><dd class="col-sm-9">{{ $profile->full_name }}</dd>
                     <dt class="col-sm-3">Birthdate</dt><dd class="col-sm-9">{{ $profile->birthdate?->format('M j, Y') ?? '—' }}</dd>
                     <dt class="col-sm-3">Sex</dt><dd class="col-sm-9">{{ $profile->sex?->value ?? '—' }}</dd>
@@ -252,13 +263,14 @@
                     <dt class="col-sm-3">Email</dt><dd class="col-sm-9">{{ $application->applicant->email }}</dd>
                     <dt class="col-sm-3">Mobile</dt><dd class="col-sm-9">{{ $profile->phone ?? '—' }}</dd>
                     <dt class="col-sm-3">Address</dt><dd class="col-sm-9">{{ $profile->address ?? '—' }}</dd>
-                </dl>
-            </details>
+                </dl></div>
+            </div>
         </section>
 
         <section class="card employee-form-card">
-            <details>
-                <summary class="fs-5 fw-semibold">Education and work history</summary>
+            <div>
+                <div class="fs-5 fw-semibold" data-accordion-header>Education and work history</div>
+                <div>
                 <h3 class="fs-6 mt-3">Education</h3>
                 <ul>@forelse ($application->education ?? [] as $row)
                     <li>{{ $row['level'] ?? '' }} {{ $row['school'] ?? '' }} {{ ! empty($row['course']) ? '· '.$row['course'] : '' }} {{ ! empty($row['year_graduated']) ? '· '.$row['year_graduated'] : '' }}</li>
@@ -271,27 +283,30 @@
                     <h3 class="fs-6 mt-3">Note to HR</h3>
                     <p class="mb-0">{{ $application->cover_note }}</p>
                 @endif
-            </details>
+                </div>
+            </div>
         </section>
 
         @if ($application->offers->isNotEmpty())
             <section class="card employee-form-card">
-                <details>
-                    <summary class="fs-5 fw-semibold">Offers</summary>
+                <div>
+                    <div class="fs-5 fw-semibold" data-accordion-header>Offers</div>
+                    <div>
                     @foreach ($application->offers as $offerItem)
                         <div class="mt-3">
                             <p class="mb-1"><strong>{{ $offerItem->status->label() }}</strong> · sent {{ $offerItem->created_at->format('M j, Y') }} by {{ $offerItem->issuer->name }}</p>
                             @include('offers._body', ['offer' => $offerItem])
                         </div>
                     @endforeach
-                </details>
+                    </div>
+                </div>
             </section>
         @endif
 
         <section class="card employee-form-card">
-            <details>
-                <summary class="fs-5 fw-semibold">Timeline</summary>
-                <ul class="list-group list-group-flush mt-2">
+            <div>
+                <div class="fs-5 fw-semibold" data-accordion-header>Timeline</div>
+                <div><ul class="list-group list-group-flush mt-2">
                     @foreach ($application->events->reverse() as $event)
                         <li class="list-group-item px-0">
                             <span class="fw-medium">{{ $event->label() }}</span>
@@ -299,8 +314,9 @@
                             @if (! empty($event->details['reason'])) <small class="d-block">Reason: {{ $event->details['reason'] }}</small> @endif
                         </li>
                     @endforeach
-                </ul>
-            </details>
+                </ul></div>
+            </div>
         </section>
+        </div>
     </div>
 @endsection

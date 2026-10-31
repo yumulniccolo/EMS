@@ -1,0 +1,685 @@
+// jQuery UI widgets restyled with Bootstrap's colour variables, so they follow the light and dark themes and sit above
+// Bootstrap modals. jQuery UI's base theme (imported before this file) is light; the rules here hand its colours, fonts,
+// and borders back to the app's. Checkboxes, radios, and buttons take their look from the native control's state
+// (:checked, :disabled), not from jQuery UI's state classes, so they always show what the control holds.
+
+.ui-widget,
+.ui-widget input,
+.ui-widget select,
+.ui-widget textarea,
+.ui-widget button {
+    font-family: inherit;
+}
+
+.ui-widget-content {
+    color: var(--bs-body-color);
+    background: var(--ems-surface);
+
+    a {
+        color: var(--bs-link-color);
+    }
+}
+
+.ui-widget.ui-widget-content {
+    border-color: var(--bs-border-color);
+}
+
+.ui-datepicker,
+.ui-autocomplete,
+.ui-selectmenu-menu .ui-menu {
+    z-index: 1100 !important;
+    color: var(--bs-body-color);
+    background: var(--bs-body-bg);
+    border: var(--bs-border-width) solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    box-shadow: var(--bs-box-shadow);
+    font-family: inherit;
+    font-size: .9rem;
+}
+
+.ui-datepicker {
+    width: 18rem;
+    padding: .5rem;
+
+    .ui-datepicker-header {
+        background: transparent;
+        border: 0;
+    }
+
+    select {
+        color: var(--bs-body-color);
+        background: var(--bs-body-bg);
+        border: var(--bs-border-width) solid var(--bs-border-color);
+        border-radius: var(--bs-border-radius-sm);
+    }
+
+    th {
+        color: var(--bs-secondary-color);
+        font-weight: 600;
+    }
+
+    td a,
+    td span {
+        padding: .35rem;
+        text-align: center;
+        color: var(--bs-body-color);
+        background: transparent;
+        border: 0;
+        border-radius: var(--bs-border-radius-sm);
+    }
+
+    td a:hover {
+        background: var(--bs-tertiary-bg);
+    }
+
+    .ui-range-day a {
+        background: var(--bs-primary-bg-subtle);
+        border-radius: 0;
+    }
+
+    .ui-state-highlight {
+        background: var(--bs-secondary-bg);
+        font-weight: 600;
+    }
+
+    .ui-state-active {
+        color: #fff;
+        background: var(--bs-primary);
+    }
+
+    .ui-state-disabled {
+        opacity: .35;
+    }
+
+    .ui-datepicker-prev,
+    .ui-datepicker-next {
+        cursor: pointer;
+    }
+}
+
+.ui-autocomplete,
+.ui-selectmenu-menu .ui-menu {
+    padding: .25rem;
+    max-height: 16rem;
+    overflow-y: auto;
+
+    .ui-menu-item-wrapper {
+        padding: .4rem .6rem;
+        border: 0;
+        border-radius: var(--bs-border-radius-sm);
+    }
+
+    .ui-state-active {
+        color: var(--bs-body-color);
+        background: var(--bs-tertiary-bg);
+        border: 0;
+        margin: 0;
+    }
+}
+
+// The range field is read-only so only the calendar changes it, but it should not look disabled.
+.date-range-input {
+    cursor: pointer;
+    background-color: var(--bs-body-bg);
+}
+
+.sortable-row {
+    position: relative;
+
+    &.ui-sortable-helper {
+        background: var(--bs-body-bg);
+        box-shadow: var(--bs-box-shadow);
+    }
+}
+
+.sort-handle {
+    position: absolute;
+    left: -.95rem;
+    top: 2.1rem;
+    width: auto;
+    color: var(--bs-secondary-color);
+    cursor: grab;
+    letter-spacing: -.15em;
+    line-height: 1;
+    user-select: none;
+
+    &:active {
+        cursor: grabbing;
+    }
+}
+
+// Button on .btn (and on the labels of .btn-check inputs): Bootstrap's button variables set every state, so primary,
+// secondary, outline, and danger buttons keep their colours. jQuery UI's own active class follows clicks, not the
+// input, so it is ignored here and :checked shows the selected pill instead.
+.btn.ui-button {
+    margin-right: 0;
+    padding: var(--bs-btn-padding-y) var(--bs-btn-padding-x);
+    font-family: var(--bs-btn-font-family);
+    font-size: var(--bs-btn-font-size);
+    font-weight: var(--bs-btn-font-weight);
+    line-height: var(--bs-btn-line-height);
+    color: var(--bs-btn-color);
+    background: var(--bs-btn-bg);
+    border: var(--bs-btn-border-width) solid var(--bs-btn-border-color);
+    box-shadow: none;
+
+    &.ui-state-active,
+    &.ui-state-focus,
+    &.ui-visual-focus {
+        color: var(--bs-btn-color);
+        background: var(--bs-btn-bg);
+        border-color: var(--bs-btn-border-color);
+        box-shadow: none;
+    }
+
+    &:hover {
+        color: var(--bs-btn-hover-color);
+        background: var(--bs-btn-hover-bg);
+        border-color: var(--bs-btn-hover-border-color);
+    }
+
+    &:active,
+    &.active,
+    &.show,
+    .btn-check:checked + & {
+        color: var(--bs-btn-active-color);
+        background: var(--bs-btn-active-bg);
+        border-color: var(--bs-btn-active-border-color);
+    }
+
+    &:focus-visible,
+    .btn-check:focus-visible + & {
+        outline: 0;
+        box-shadow: var(--bs-btn-focus-box-shadow);
+    }
+
+    &:disabled,
+    &.disabled,
+    &.ui-state-disabled,
+    .btn-check:disabled + & {
+        color: var(--bs-btn-disabled-color);
+        background: var(--bs-btn-disabled-bg);
+        border-color: var(--bs-btn-disabled-border-color);
+        opacity: var(--bs-btn-disabled-opacity);
+        pointer-events: none;
+    }
+}
+
+a.btn.ui-button:where(:link, :visited) {
+    color: var(--bs-btn-color);
+}
+
+.btn.ui-corner-all {
+    border-radius: var(--bs-btn-border-radius);
+}
+
+// Checkboxradio on a .form-check-input: the input is hidden and the mark drawn at the start of its label, the same size
+// and colours as Bootstrap's checkbox and radio.
+.form-check:has(> .ui-checkboxradio) {
+    padding-left: 0;
+
+    > .ui-checkboxradio {
+        margin: 0;
+    }
+}
+
+.form-check-label.ui-checkboxradio-label {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: .5em;
+    cursor: pointer;
+
+    &,
+    &:hover,
+    &:focus,
+    &.ui-state-active,
+    &.ui-state-active:hover,
+    &.ui-state-focus,
+    &.ui-visual-focus,
+    &.ui-state-disabled {
+        margin: 0;
+        padding: 0;
+        font-weight: inherit;
+        line-height: inherit;
+        color: inherit;
+        text-align: start;
+        vertical-align: baseline;
+        background: none;
+        border: 0;
+        box-shadow: none;
+        opacity: 1;
+        user-select: auto;
+    }
+
+    .ui-checkboxradio-icon-space {
+        display: none;
+    }
+}
+
+.ui-checkboxradio-label.ui-checkboxradio-disabled {
+    pointer-events: auto;
+}
+
+.ui-checkboxradio:disabled + .ui-checkboxradio-label {
+    pointer-events: none;
+
+    &.form-check-label {
+        cursor: default;
+        opacity: $form-check-label-disabled-opacity;
+    }
+}
+
+.ui-checkboxradio-label.form-check-label .ui-checkboxradio-icon.ui-icon {
+    flex-shrink: 0;
+    width: $form-check-input-width;
+    height: $form-check-input-width;
+    margin: ($line-height-base - $form-check-input-width) * .5 0 0;
+    overflow: hidden;
+    text-indent: -9999px;
+    background: $form-check-input-bg none center / contain no-repeat;
+    border: $form-check-input-border;
+    border-radius: $form-check-input-border-radius;
+    box-shadow: none;
+}
+
+.ui-checkboxradio-radio-label.form-check-label .ui-checkboxradio-icon.ui-icon {
+    border-radius: $form-check-radio-border-radius;
+}
+
+.ui-checkboxradio:checked + .form-check-label .ui-checkboxradio-icon.ui-icon {
+    background-color: $form-check-input-checked-bg-color;
+    background-image: escape-svg($form-check-input-checked-bg-image);
+    border-color: $form-check-input-checked-border-color;
+}
+
+.ui-checkboxradio[type="radio"]:checked + .form-check-label .ui-checkboxradio-icon.ui-icon {
+    background-image: escape-svg($form-check-radio-checked-bg-image);
+}
+
+.ui-checkboxradio[type="checkbox"]:indeterminate + .form-check-label .ui-checkboxradio-icon.ui-icon {
+    background-color: $form-check-input-indeterminate-bg-color;
+    background-image: escape-svg($form-check-input-indeterminate-bg-image);
+    border-color: $form-check-input-indeterminate-border-color;
+}
+
+.ui-checkboxradio:focus-visible + .form-check-label .ui-checkboxradio-icon.ui-icon {
+    border-color: $form-check-input-focus-border;
+    box-shadow: $form-check-input-focus-box-shadow;
+}
+
+.ui-checkboxradio.is-invalid + .form-check-label .ui-checkboxradio-icon.ui-icon {
+    border-color: var(--bs-form-invalid-border-color);
+}
+
+// Selectmenu: the closed menu is a .form-select (its chevron, padding, and focus ring); the open list is styled with the
+// autocomplete list above. The native select stays at the button's corner, invisible, for the browser's form checks.
+.ui-selectmenu-button.form-select {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: $form-select-padding-y $form-select-indicator-padding $form-select-padding-y $form-select-padding-x;
+    font-family: inherit;
+    font-size: $form-select-font-size;
+    font-weight: $form-select-font-weight;
+    line-height: $form-select-line-height;
+    color: $form-select-color;
+    background-color: $form-select-bg;
+    background-image: var(--bs-form-select-bg-img), var(--bs-form-select-bg-icon, none);
+    background-repeat: no-repeat;
+    background-position: $form-select-bg-position;
+    background-size: $form-select-bg-size;
+    border: $form-select-border-width solid $form-select-border-color;
+    border-radius: $form-select-border-radius;
+    box-shadow: none;
+
+    &.form-select-sm {
+        padding-top: $form-select-padding-y-sm;
+        padding-bottom: $form-select-padding-y-sm;
+        padding-left: $form-select-padding-x-sm;
+        font-size: $form-select-font-size-sm;
+        border-radius: $form-select-border-radius-sm;
+    }
+
+    &:focus,
+    &.ui-selectmenu-button-open {
+        border-color: $form-select-focus-border-color;
+        outline: 0;
+        box-shadow: $form-select-focus-box-shadow;
+    }
+
+    &.is-invalid {
+        border-color: var(--bs-form-invalid-border-color);
+    }
+
+    &.ui-state-disabled {
+        color: $form-select-disabled-color;
+        background-color: $form-select-disabled-bg;
+        border-color: $form-select-disabled-border-color;
+        opacity: 1;
+    }
+
+    .ui-selectmenu-icon {
+        display: none;
+    }
+
+    .ui-selectmenu-text {
+        margin-right: 0;
+    }
+}
+
+select.ui-selectmenu-native,
+select.ui-combobox-native {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.ui-selectmenu-menu.ui-front {
+    z-index: 1100;
+}
+
+.ui-selectmenu-menu .ui-menu {
+    max-height: 18rem;
+
+    .ui-selectmenu-optgroup {
+        padding: .5rem .6rem .25rem;
+        margin: 0;
+        font-size: .75rem;
+        font-weight: 600;
+        color: var(--bs-secondary-color);
+    }
+
+    .ui-menu-item-wrapper.is-selected {
+        font-weight: 600;
+        color: var(--bs-emphasis-color);
+        background: var(--ems-accent-soft);
+    }
+
+    .ui-menu-item-wrapper.is-selected.ui-state-active {
+        background: var(--bs-tertiary-bg);
+    }
+}
+
+// Combobox (Autocomplete on a long select): the text field wears the select's .form-select classes, so it keeps the
+// field's chevron, and the list is the .ui-autocomplete list above.
+.ui-combobox-input {
+    cursor: text;
+}
+
+// Accordion (the Recruitment page's panels): a header keeps the look of the disclosure summary it replaced, with a
+// chevron that turns when its panel opens; jQuery UI's own header box, icons, and spacing are not used.
+.ui-accordion.ui-helper-reset,
+.ui-accordion .ui-accordion-content.ui-helper-reset {
+    line-height: inherit;
+}
+
+.ui-accordion .ui-accordion-header {
+    &,
+    &.ui-state-default,
+    &.ui-state-hover,
+    &.ui-state-focus,
+    &.ui-state-active {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        margin: 0;
+        padding: 0;
+        font-size: inherit;
+        color: inherit;
+        background: none;
+        border: 0;
+        border-radius: 0;
+    }
+
+    &::before {
+        flex-shrink: 0;
+        width: .45em;
+        height: .45em;
+        content: "";
+        border-right: 2px solid currentcolor;
+        border-bottom: 2px solid currentcolor;
+        transform: rotate(-45deg);
+        transition: transform .15s ease-in-out;
+    }
+
+    &.ui-accordion-header-active::before {
+        transform: rotate(45deg);
+    }
+
+    &:focus-visible {
+        outline: 0;
+        border-radius: var(--bs-border-radius-sm);
+        box-shadow: $focus-ring-box-shadow;
+    }
+}
+
+.ui-accordion .ui-accordion-content {
+    padding: 0;
+    overflow: visible;
+    color: inherit;
+    background: none;
+    border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ui-accordion .ui-accordion-header::before {
+        transition: none;
+    }
+}
+
+// Resizable document preview (recruitment/show.blade.php): the document fills the box above a slim strip at its
+// bottom edge, which is the handle; dragging it sets the box's height.
+.document-viewer {
+    position: relative;
+    height: 36rem;
+    padding-bottom: .75rem;
+    overflow: hidden;
+
+    > iframe {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+
+    .ui-resizable-s {
+        bottom: 0;
+        height: .75rem;
+        cursor: ns-resize;
+        background: var(--ems-subtle-bg);
+
+        &::after {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 2.5rem;
+            height: .25rem;
+            content: "";
+            background: var(--bs-secondary-color);
+            border-radius: 1rem;
+            transform: translate(-50%, -50%);
+        }
+
+        &:hover::after {
+            background: var(--bs-primary);
+        }
+    }
+
+    &.ui-resizable-resizing .ui-resizable-s::after {
+        background: var(--bs-primary);
+    }
+}
+
+// Progressbar on a .progress track: the filled part is the track's --bs-progress-bar-bg (a .stage-* or theme colour).
+.progress.ui-progressbar {
+    height: var(--bs-progress-height);
+    color: inherit;
+    background: var(--bs-progress-bg);
+    border: 0;
+    border-radius: var(--bs-progress-border-radius);
+}
+
+.ui-progressbar .ui-progressbar-value {
+    margin: 0;
+    background: var(--bs-progress-bar-bg);
+    border: 0;
+    border-radius: 0;
+    transition: var(--bs-progress-bar-transition);
+}
+
+.ui-progressbar .ui-progressbar-overlay {
+    display: none;
+}
+
+// An amount not known yet is shown as moving stripes across the whole track.
+.ui-progressbar-indeterminate .ui-progressbar-value {
+    background-image: linear-gradient(45deg, rgba($white, .15) 25%, transparent 25%, transparent 50%, rgba($white, .15) 50%, rgba($white, .15) 75%, transparent 75%, transparent);
+    background-size: var(--bs-progress-height) var(--bs-progress-height);
+    animation: progress-bar-stripes 1s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ui-progressbar .ui-progressbar-value {
+        transition: none;
+        animation: none;
+    }
+}
+
+// Sortable admin lists (tbody[data-sortable-list]): rows move by the grip in their first cell.
+.sortable-handle-cell {
+    width: 2.5rem;
+}
+
+.sortable-handle {
+    display: inline-flex;
+    padding: .25rem;
+    color: var(--bs-secondary-color);
+    cursor: grab;
+    background: none;
+    border: 0;
+    border-radius: var(--bs-border-radius-sm);
+
+    &:hover {
+        color: var(--bs-body-color);
+        background: var(--ems-subtle-bg);
+    }
+
+    &:focus-visible {
+        color: var(--bs-body-color);
+        outline: 0;
+        box-shadow: $focus-ring-box-shadow;
+    }
+}
+
+// The table's cells are transparent and tinted on hover (.employees-table, .employee-row), so the dragged row is given
+// a solid surface, or the rows it passes over would show through it.
+.table > tbody > tr.ui-sortable-helper {
+    cursor: grabbing;
+    box-shadow: var(--ems-menu-shadow);
+
+    > td {
+        --bs-table-bg-state: transparent;
+
+        background-color: var(--ems-surface);
+    }
+}
+
+.table > tbody > tr.sortable-placeholder > td {
+    --bs-table-bg-state: var(--ems-accent-soft);
+
+    border-top: 2px dashed var(--bs-primary);
+    border-bottom: 2px dashed var(--bs-primary);
+}
+
+// Dialog (the confirmation before a data-confirm form is sent), laid out like a Bootstrap modal.
+.ui-widget-overlay.ui-front {
+    z-index: 1099;
+    background: $modal-backdrop-bg;
+    opacity: $modal-backdrop-opacity;
+}
+
+.ui-dialog.ui-front {
+    z-index: 1100;
+}
+
+.ui-dialog.ems-dialog {
+    max-width: calc(100vw - 2rem);
+    padding: 0;
+    font-size: $font-size-base;
+    color: var(--bs-body-color);
+    background: var(--ems-surface);
+    border: var(--bs-border-width) solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius-lg);
+    box-shadow: var(--ems-menu-shadow);
+
+    .ui-dialog-titlebar {
+        padding: 1rem 3rem .5rem 1rem;
+        color: inherit;
+        background: none;
+        border: 0;
+        border-radius: 0;
+    }
+
+    .ui-dialog-title {
+        float: none;
+        width: auto;
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: $headings-font-weight;
+    }
+
+    .ui-dialog-titlebar-close.btn-close {
+        top: 1rem;
+        right: 1rem;
+        box-sizing: content-box;
+        width: 1em;
+        height: 1em;
+        padding: .25em;
+        margin: 0;
+        background: transparent var(--bs-btn-close-bg) center / 1em auto no-repeat;
+        border: 0;
+        border-radius: var(--bs-border-radius-sm);
+        opacity: var(--bs-btn-close-opacity);
+
+        &:hover {
+            opacity: var(--bs-btn-close-hover-opacity);
+        }
+
+        &:focus-visible {
+            outline: 0;
+            box-shadow: var(--bs-btn-close-focus-shadow);
+            opacity: var(--bs-btn-close-focus-opacity);
+        }
+
+        .ui-icon {
+            display: none;
+        }
+    }
+
+    .ui-dialog-content {
+        padding: .5rem 1rem 1rem;
+        color: inherit;
+    }
+
+    .ui-dialog-buttonpane {
+        padding: .75rem 1rem;
+        margin: 0;
+        background: none;
+        border-top: var(--bs-border-width) solid var(--bs-border-color);
+
+        .ui-dialog-buttonset {
+            display: flex;
+            float: none;
+            flex-wrap: wrap;
+            gap: .5rem;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            margin: 0;
+        }
+    }
+}

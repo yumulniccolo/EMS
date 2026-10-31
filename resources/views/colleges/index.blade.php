@@ -22,23 +22,25 @@
             </section>
         @endcan
 
+        @php($canManage = auth()->user()->can('manage-reference-data'))
         <div class="card overflow-hidden">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 employees-table">
+                <table class="table align-middle mb-0 employees-table">
                     <thead>
                         <tr>
+                            @if ($canManage) <th scope="col" class="sortable-handle-cell"><span class="visually-hidden">Order</span></th> @endif
                             <th scope="col">Code</th>
                             <th scope="col">College</th>
                             <th scope="col">Dean</th>
                             <th scope="col">Programs</th>
                             <th scope="col" class="text-end">People</th>
                             <th scope="col">Status</th>
-                            <th scope="col"><span class="visually-hidden">Actions</span></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody @if ($canManage) data-sortable-list="colleges" @endif>
                         @forelse ($colleges as $college)
-                            <tr>
+                            <tr class="employee-row" data-row-href="{{ $canManage ? route('colleges.edit', $college) : route('employees.index', ['college' => $college->id]) }}" data-sortable-id="{{ $college->id }}">
+                                @if ($canManage) <x-sort-handle :label="$college->name" /> @endif
                                 <td class="tabular-nums">{{ $college->code }}</td>
                                 <td>
                                     <a class="text-reset fw-medium" href="{{ route('employees.index', ['college' => $college->id]) }}">{{ $college->name }}</a>
@@ -53,14 +55,9 @@
                                 </td>
                                 <td class="text-end tabular-nums">{{ $college->employees_count }}</td>
                                 <td>{{ $college->is_active ? 'Active' : 'Inactive' }}</td>
-                                <td class="text-end">
-                                    @can('manage-reference-data')
-                                        <a class="btn btn-sm btn-outline-secondary" href="{{ route('colleges.edit', $college) }}">Edit</a>
-                                    @endcan
-                                </td>
                             </tr>
                         @empty
-                            <tr><td colspan="7" class="text-center text-body-secondary py-4">No colleges yet.</td></tr>
+                            <tr><td colspan="{{ $canManage ? 7 : 6 }}" class="text-center text-body-secondary py-4">No colleges yet.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

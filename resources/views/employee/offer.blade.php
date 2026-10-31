@@ -28,7 +28,8 @@
                     <x-field name="signed_name" label="Type your full name to sign" required autocomplete="off" hint="Your typed name is your signature and confirmation." />
                     <div class="d-flex justify-content-end"><button type="submit" class="btn btn-primary">Accept and Sign</button></div>
                 </form>
-                <form method="post" action="{{ route('employee.offers.decline', $offer) }}" class="d-flex gap-2 mt-2">
+                <form method="post" action="{{ route('employee.offers.decline', $offer) }}" class="d-flex gap-2 mt-2" data-confirm-title="Decline offer"
+                    data-confirm="Decline this offer? You stay as you are until your current contract ends." data-confirm-button="Decline" data-confirm-cancel="Keep Offer">
                     @csrf
                     <label class="visually-hidden" for="decline-reason">Reason (optional)</label>
                     <input type="text" class="form-control" id="decline-reason" name="reason" placeholder="Reason for declining (optional)">

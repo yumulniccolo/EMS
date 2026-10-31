@@ -24,7 +24,7 @@
                 <form method="get" action="{{ route('job-positions.open') }}" class="d-flex gap-2 flex-wrap align-items-end">
                     <div class="flex-grow-1" style="max-width: 32rem">
                         <label for="new-posting" class="form-label">Job title</label>
-                        <select class="form-select" id="new-posting" name="job_title" required>
+                        <select class="form-select" id="new-posting" name="job_title" required data-native-select data-combobox>
                             <option value="">Choose a job title</option>
                             @foreach ($unopened as $title)
                                 <option value="{{ $title->id }}">{{ $title->title }} · {{ $title->college?->code ?? $title->office?->code }}</option>
@@ -80,18 +80,19 @@
                 <table class="table align-middle mb-0 employees-table">
                     <thead>
                         <tr>
+                            @if ($canManage) <th scope="col" class="sortable-handle-cell"><span class="visually-hidden">Order</span></th> @endif
                             <th scope="col">Position</th>
                             <th scope="col">College or Office</th>
                             <th scope="col">Employment Type</th>
                             <th scope="col">Base Pay</th>
                             <th scope="col" class="text-end">Openings</th>
                             <th scope="col">Status</th>
-                            <th scope="col"><span class="visually-hidden">Actions</span></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody @if ($canManage) data-sortable-list="job-positions" @endif>
                         @forelse ($postings as $posting)
-                            <tr>
+                            <tr @if ($canManage) class="employee-row" data-row-href="{{ route('job-positions.edit', $posting) }}" data-sortable-id="{{ $posting->id }}" @endif>
+                                @if ($canManage) <x-sort-handle :label="$posting->title" /> @endif
                                 <td>
                                     <span class="fw-medium">{{ $posting->title }}</span>
                                     <small class="d-block text-body-secondary">{{ $posting->open_applications_count }} open {{ \Illuminate\Support\Str::plural('application', $posting->open_applications_count) }}</small>
@@ -108,20 +109,9 @@
                                 <td>
                                     @if ($posting->isOpen()) <span class="status-pill employment-active">Open</span> @else <span class="ems-chip">Closed</span> @endif
                                 </td>
-                                <td class="text-end text-nowrap">
-                                    @if ($canManage)
-                                        <a class="btn btn-sm btn-outline-primary" href="{{ route('job-positions.edit', $posting) }}">Edit</a>
-                                        @if ($posting->isOpen())
-                                            <form method="post" action="{{ route('job-positions.close', $posting) }}" class="d-inline">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-outline-secondary">Close</button>
-                                            </form>
-                                        @endif
-                                    @endif
-                                </td>
                             </tr>
                         @empty
-                            <tr><td colspan="7" class="employees-empty text-center"><strong>No job postings found</strong> Open a posting from a job title to get started.</td></tr>
+                            <tr><td colspan="{{ $canManage ? 7 : 6 }}" class="employees-empty text-center"><strong>No job postings found</strong> Open a posting from a job title to get started.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

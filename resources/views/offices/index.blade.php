@@ -22,22 +22,24 @@
             </section>
         @endcan
 
+        @php($canManage = auth()->user()->can('manage-reference-data'))
         <div class="card overflow-hidden">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 employees-table">
+                <table class="table align-middle mb-0 employees-table">
                     <thead>
                         <tr>
+                            @if ($canManage) <th scope="col" class="sortable-handle-cell"><span class="visually-hidden">Order</span></th> @endif
                             <th scope="col">Code</th>
                             <th scope="col">Office</th>
                             <th scope="col" class="text-end">Job titles</th>
                             <th scope="col" class="text-end">Staff</th>
                             <th scope="col">Status</th>
-                            <th scope="col"><span class="visually-hidden">Actions</span></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody @if ($canManage) data-sortable-list="offices" @endif>
                         @forelse ($offices as $office)
-                            <tr>
+                            <tr class="employee-row" data-row-href="{{ $canManage ? route('offices.edit', $office) : route('employees.index', ['office' => $office->id, 'type' => 'non-teaching']) }}" data-sortable-id="{{ $office->id }}">
+                                @if ($canManage) <x-sort-handle :label="$office->name" /> @endif
                                 <td class="tabular-nums">{{ $office->code }}</td>
                                 <td>
                                     <a class="text-reset fw-medium" href="{{ route('employees.index', ['office' => $office->id, 'type' => 'non-teaching']) }}">{{ $office->name }}</a>
@@ -45,14 +47,9 @@
                                 <td class="text-end tabular-nums">{{ $office->job_titles_count }}</td>
                                 <td class="text-end tabular-nums">{{ $office->employees_count }}</td>
                                 <td>{{ $office->is_active ? 'Active' : 'Inactive' }}</td>
-                                <td class="text-end">
-                                    @can('manage-reference-data')
-                                        <a class="btn btn-sm btn-outline-secondary" href="{{ route('offices.edit', $office) }}">Edit</a>
-                                    @endcan
-                                </td>
                             </tr>
                         @empty
-                            <tr><td colspan="6" class="text-center text-body-secondary py-4">No offices yet.</td></tr>
+                            <tr><td colspan="{{ $canManage ? 6 : 5 }}" class="text-center text-body-secondary py-4">No offices yet.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

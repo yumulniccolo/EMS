@@ -205,6 +205,45 @@ $calendar-type-colors: (
     }
 }
 
+// Dragging an interview or event to another day (jQuery UI Draggable and Droppable in calendar.js).
+.calendar-event[data-movable] {
+    cursor: grab;
+    touch-action: none;
+}
+
+// On a phone the chips are small dots, so the part that reacts to a finger reaches out past the dot.
+@include media-breakpoint-down(md) {
+    .calendar-event[data-movable] {
+        position: relative;
+
+        &::after {
+            position: absolute;
+            inset: -0.5rem;
+            content: '';
+        }
+    }
+}
+
+.calendar-drag-helper {
+    z-index: 1100;
+    max-width: 16rem;
+    cursor: grabbing;
+    background: var(--bs-body-bg);
+    border-radius: 0.25rem;
+    box-shadow: var(--bs-box-shadow);
+    opacity: 0.95;
+    pointer-events: none;
+}
+
+.is-drag-origin {
+    opacity: 0.4;
+}
+
+.calendar-day.is-drop-target {
+    background: var(--bs-primary-bg-subtle);
+    box-shadow: inset 0 0 0 2px var(--bs-primary);
+}
+
 // Notes keep the line breaks HR typed.
 .calendar-notes {
     white-space: pre-wrap;

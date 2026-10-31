@@ -59,11 +59,13 @@
             </div>
         </form>
 
+        @php($canManage = auth()->user()->can('manage-reference-data'))
         <div class="card overflow-hidden">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 employees-table">
+                <table class="table align-middle mb-0 employees-table">
                     <thead>
                         <tr>
+                            @if ($canManage) <th scope="col" class="sortable-handle-cell"><span class="visually-hidden">Order</span></th> @endif
                             <th scope="col">Job title</th>
                             <th scope="col">Used in</th>
                             <th scope="col">Category</th>
@@ -71,14 +73,14 @@
                             <th scope="col" class="text-end">People</th>
                             <th scope="col">Open positions</th>
                             <th scope="col">Status</th>
-                            <th scope="col"><span class="visually-hidden">Actions</span></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody @if ($canManage) data-sortable-list="job-titles" @endif>
                         @forelse ($jobTitles as $jobTitle)
                             @php($pay = $schedule[$jobTitle->salary_grade] ?? null)
                             @php($units = $copies->get($jobTitle->title.'|'.$jobTitle->category->value, collect()))
-                            <tr>
+                            <tr @if ($canManage) class="employee-row" data-row-href="{{ route('job-titles.edit', $jobTitle->id) }}" data-sortable-id="{{ $jobTitle->id }}" @endif>
+                                @if ($canManage) <x-sort-handle :label="$jobTitle->title" /> @endif
                                 <td class="fw-medium">{{ $jobTitle->title }}</td>
                                 <td>
                                     <div class="d-flex flex-wrap gap-1">
@@ -105,14 +107,9 @@
                                     @endif
                                 </td>
                                 <td>{{ $jobTitle->active_count > 0 ? 'Active' : 'Inactive' }}</td>
-                                <td class="text-end">
-                                    @can('manage-reference-data')
-                                        <a class="btn btn-sm btn-outline-secondary" href="{{ route('job-titles.edit', $jobTitle->id) }}">Edit</a>
-                                    @endcan
-                                </td>
                             </tr>
                         @empty
-                            <tr><td colspan="8" class="text-center text-body-secondary py-4">No job titles match.</td></tr>
+                            <tr><td colspan="{{ $canManage ? 8 : 7 }}" class="text-center text-body-secondary py-4">No job titles match.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
