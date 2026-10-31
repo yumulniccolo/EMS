@@ -206,8 +206,8 @@ describe('the employee portal', function () {
 
     it('shows shared events and the employee\'s own approved leave on the calendar', function () {
         $employee = Employee::factory()->create();
-        CalendarEvent::query()->create(['title' => 'Everyone event', 'type' => 'meeting', 'starts_at' => now()->addDay(), 'for_everyone' => true, 'status' => 'scheduled']);
-        CalendarEvent::query()->create(['title' => 'HR only event', 'type' => 'meeting', 'starts_at' => now()->addDay(), 'for_everyone' => false, 'status' => 'scheduled']);
+        CalendarEvent::query()->create(['title' => 'Everyone event', 'type' => 'meeting', 'starts_at' => now()->startOfMonth()->addHours(10), 'for_everyone' => true, 'status' => 'scheduled']);
+        CalendarEvent::query()->create(['title' => 'HR only event', 'type' => 'meeting', 'starts_at' => now()->startOfMonth()->addHours(10), 'for_everyone' => false, 'status' => 'scheduled']);
         LeaveRequest::factory()->underway()->create(['employee_id' => $employee->id]);
 
         $this->actingAs(User::factory()->create(['employee_id' => $employee->id]))->get(route('employee.calendar'))->assertSee('Everyone event')->assertDontSee('HR only event')->assertSee('Vacation Leave');

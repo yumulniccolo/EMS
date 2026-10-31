@@ -95,11 +95,24 @@
 
                 <section class="card employee-form-card" aria-labelledby="ids-title">
                     <h2 class="fs-5" id="ids-title">Government IDs</h2>
-                    <p class="text-body-secondary">Numbers are masked.</p>
+                    <p class="text-body-secondary">Numbers are masked.@if ($isHead) Pick a reason to reveal one; every reveal is recorded in the audit log.@endif</p>
                     <ul class="list-group list-group-flush">
                         @foreach ($idLabels as $key => $label)
                             <li class="list-group-item d-flex justify-content-between align-items-center gap-3 flex-wrap px-0">
                                 <span><strong>{{ $label }}</strong> <span class="tabular-nums">{{ isset($masked[$key]) ? '•••• '.$masked[$key] : 'Not on file' }}</span></span>
+                                @if ($isHead && isset($masked[$key]))
+                                    <form method="post" action="{{ route('government-ids.reveal', [$employee, $key]) }}" class="d-flex gap-2">
+                                        @csrf
+                                        <label class="visually-hidden" for="reason-{{ $key }}">Reason for revealing the {{ $label }} number</label>
+                                        <select class="form-select form-select-sm" id="reason-{{ $key }}" name="reason" required>
+                                            <option value="">Reason</option>
+                                            @foreach ($revealReasons as $value => $reasonLabel)
+                                                <option value="{{ $value }}">{{ $reasonLabel }}</option>
+                                            @endforeach
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary">Reveal</button>
+                                    </form>
+                                @endif
                             </li>
                         @endforeach
                     </ul>
