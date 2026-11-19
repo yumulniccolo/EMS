@@ -16,7 +16,7 @@
         "@laravel/multiplex": "^0.4.1"
     },
     "dependencies": {
-        "bootstrap": "^5.3.8",
+        "bootstrap": "^5.3.9",
         "jquery": "^4.0.0",
         "jquery-ui": "^1.14.2"
     }
